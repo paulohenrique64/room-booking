@@ -1,0 +1,18 @@
+<div class="row g-3" id="lista-salas">
+{% for sala in salas %}
+<div class="col-md-6 col-lg-4">
+  <div class="card h-100">
+    <div class="card-body">
+      <h2 class="h5 card-title">{{ sala.nome }}</h2>
+      <p class="card-text text-muted mb-1">{{ sala.predio }} — Andar {{ sala.andar }}</p>
+      <p class="card-text"><small>Capacidade: {{ sala.capacidade }}</small></p>
+    </div>
+    <div class="card-footer bg-transparent">
+      <a href="{% url 'rooms:detalhe' sala.pk %}" class="btn btn-sm btn-outline-primary">Ver disponibilidade</a>
+    </div>
+  </div>
+</div>
+{% empty %}
+<p class="text-muted">Nenhuma sala ativa cadastrada.</p>
+{% endfor %}
+</div>

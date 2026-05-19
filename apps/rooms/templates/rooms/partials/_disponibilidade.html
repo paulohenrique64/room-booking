@@ -1,0 +1,8 @@
+{% if erro_data %}<div class="alert alert-warning">{{ erro_data }}</div>{% elif disponibilidade %}
+<div class="card"><div class="card-body">
+<h2 class="h6">Horários em {{ disponibilidade.data|date:"d/m/Y" }}</h2>
+{% if disponibilidade.disponivel %}<p class="text-success mb-0">Sala livre o dia todo.</p>{% else %}
+<ul class="mb-0">{% for h in disponibilidade.horarios_bloqueados %}<li>{{ h.inicio_str }} – {{ h.fim_str }} ({{ h.professor }})</li>{% endfor %}</ul>
+{% endif %}
+</div></div>
+{% else %}<p class="text-muted">Selecione uma data para ver a disponibilidade.</p>{% endif %}

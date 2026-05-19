@@ -1,0 +1,12 @@
+<div id="form-reserva">
+<form method="post" hx-post="{% url 'reservations:nova' %}" hx-target="#form-reserva" hx-swap="outerHTML">
+{% csrf_token %}
+{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
+<div class="mb-3"><label class="form-label">Sala</label>{{ form.sala }}{% if form.sala.errors %}<div class="text-danger small">{{ form.sala.errors }}</div>{% endif %}</div>
+<div class="mb-3"><label class="form-label">Data</label>{{ form.data }}{% if form.data.errors %}<div class="text-danger small">{{ form.data.errors }}</div>{% endif %}</div>
+<div class="row"><div class="col mb-3"><label class="form-label">Início</label>{{ form.hora_inicio }}</div><div class="col mb-3"><label class="form-label">Fim</label>{{ form.hora_fim }}</div></div>
+<div class="mb-3"><label class="form-label">Motivo</label>{{ form.motivo }}</div>
+<button type="submit" class="btn btn-primary">Salvar</button>
+<a href="{% url 'reservations:lista' %}" class="btn btn-link">Voltar</a>
+</form>
+</div>
