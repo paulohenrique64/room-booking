@@ -25,6 +25,8 @@ ALLOWED_HOSTS = [
 ]
 
 INSTALLED_APPS = [
+    # JazzAdmin must come before django.contrib.admin
+    'jazzmin',
     'django.contrib.admin',
     'django.contrib.auth',
     'django.contrib.contenttypes',
