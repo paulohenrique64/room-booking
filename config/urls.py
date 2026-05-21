@@ -4,11 +4,18 @@ URL configuration principal do projeto.
 from django.conf import settings
 from django.conf.urls.static import static
 from django.contrib import admin
+from django.http import HttpResponse
 from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
 
+
+def health_check(_request):
+    return HttpResponse("ok", content_type="text/plain")
+
+
 urlpatterns = [
+    path('health/', health_check, name='health'),
     path('', RedirectView.as_view(pattern_name='reservations:lista', permanent=False), name='home'),
     path('admin/', admin.site.urls),
     # Autenticação web

@@ -37,6 +37,9 @@ class Reserva(models.Model):
         return f'{self.sala.nome} - {self.data} ({self.hora_inicio} a {self.hora_fim})'
 
     def clean(self):
+        if self.sala_id and not self.sala.ativa:
+            raise ValidationError('Não é possível reservar uma sala inativa.')
+
         if self.hora_fim <= self.hora_inicio:
             raise ValidationError('Horário de fim deve ser posterior ao horário de início.')
 

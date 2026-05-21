@@ -1,14 +1,54 @@
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
-from apps.core.exceptions import DomainError
 from .constants import ReservaStatus, HistoricoAcao
+from .exceptions import DomainError
 from .models import CancelamentoReserva, HistoricoReserva, Reserva
 
 
 def validar_reserva(reserva: Reserva) -> None:
     """Executa validações de domínio da reserva."""
     reserva.clean()
+
+
+def registrar_historico_criacao(*, reserva: Reserva, usuario=None, descricao='Reserva criada') -> HistoricoReserva:
+    historico = HistoricoReserva.objects.filter(
+        reserva=reserva,
+        acao=HistoricoAcao.CRIADA,
+    ).first()
+    if historico:
+        return historico
+
+    return HistoricoReserva.objects.create(
+        reserva=reserva,
+        acao=HistoricoAcao.CRIADA,
+        usuario=usuario,
+        descricao=descricao,
+    )
+
+
+def registrar_cancelamento(*, reserva: Reserva, usuario=None, motivo: str) -> CancelamentoReserva:
+    cancelamento = CancelamentoReserva.objects.filter(reserva=reserva).first()
+    if not cancelamento:
+        cancelamento = CancelamentoReserva.objects.create(
+            reserva=reserva,
+            motivo=motivo,
+            cancelado_por=usuario,
+        )
+
+    historico_existe = HistoricoReserva.objects.filter(
+        reserva=reserva,
+        acao=HistoricoAcao.CANCELADA,
+    ).exists()
+    if not historico_existe:
+        HistoricoReserva.objects.create(
+            reserva=reserva,
+            acao=HistoricoAcao.CANCELADA,
+            usuario=usuario,
+            descricao=f'Reserva cancelada: {motivo}',
+        )
+
+    return cancelamento
 
 
 @transaction.atomic
@@ -27,11 +67,9 @@ def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, motivo) -> Re
         raise DomainError(exc.messages[0] if exc.messages else str(exc)) from exc
 
     reserva.save()
-    HistoricoReserva.objects.create(
+    registrar_historico_criacao(
         reserva=reserva,
-        acao=HistoricoAcao.CRIADA,
         usuario=professor,
-        descricao='Reserva criada',
     )
     return reserva
 
@@ -75,21 +113,14 @@ def cancelar_reserva(*, reserva: Reserva, usuario, motivo: str) -> Reserva:
     if not usuario.is_staff and reserva.professor_id != usuario.id:
         raise PermissionDenied('Você só pode cancelar suas próprias reservas.')
 
-    if reserva.status == ReservaStatus.CANCELADA:
-        raise DomainError('Esta reserva já foi cancelada')
+    if reserva.status != ReservaStatus.ATIVA:
+        raise DomainError('Somente reservas ativas podem ser canceladas.')
 
     reserva.status = ReservaStatus.CANCELADA
     reserva.save(update_fields=['status', 'atualizado_em'])
-
-    CancelamentoReserva.objects.create(
+    registrar_cancelamento(
         reserva=reserva,
-        motivo=motivo,
-        cancelado_por=usuario,
-    )
-    HistoricoReserva.objects.create(
-        reserva=reserva,
-        acao=HistoricoAcao.CANCELADA,
         usuario=usuario,
-        descricao=f'Reserva cancelada: {motivo}',
+        motivo=motivo,
     )
     return reserva

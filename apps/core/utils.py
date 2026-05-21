@@ -1,7 +1,7 @@
 """
 Utility functions compartilhadas.
 """
-from datetime import datetime
+from datetime import date, datetime
 from django.core.exceptions import ValidationError
 
 
@@ -25,7 +25,7 @@ def parse_data(data_input):
         >>> parse_data(datetime.date(2024, 5, 21))
         datetime.date(2024, 5, 21)
     """
-    if isinstance(data_input, datetime.date):
+    if isinstance(data_input, date):
         return data_input
     
     if not isinstance(data_input, str):

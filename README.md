@@ -42,14 +42,9 @@ cp .env.example .env   # ajuste DB_* e SECRET_KEY
 ## Docker
 
 ```bash
-docker compose up --build
+./docker-manage.sh config
+./docker-manage.sh build
+./docker-manage.sh up-d
 ```
 
-## Camadas
-
-| Camada | Onde |
-|--------|------|
-| Domínio | `models.py`, `services.py` |
-| Consultas | `selectors.py` |
-| Web HTMX | `views.py`, `forms.py`, `templates/` |
-| API | `api/views.py`, `api/serializers.py` |
+Com Docker, acesse `http://localhost:8080`. O MySQL roda apenas na rede interna do compose em `db:3306`, sem publicar a porta `3306` no host. Veja mais detalhes em `DOCKER.md`.

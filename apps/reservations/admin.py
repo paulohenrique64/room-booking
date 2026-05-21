@@ -1,7 +1,10 @@
-from django.contrib import admin
+from django.contrib import admin, messages
+from django.core.exceptions import PermissionDenied
 from django.utils.html import format_html
 
+from . import services
 from .constants import ReservaStatus
+from .exceptions import DomainError
 from .models import CancelamentoReserva, HistoricoReserva, Reserva
 
 
@@ -78,18 +81,37 @@ class ReservaAdmin(admin.ModelAdmin):
 
     actions = ['cancelar_reservas_selecionadas']
 
+    def save_model(self, request, obj, form, change):
+        super().save_model(request, obj, form, change)
+
+        if not change:
+            services.registrar_historico_criacao(
+                reserva=obj,
+                usuario=request.user,
+                descricao='Reserva criada via admin',
+            )
+
+        if obj.status == ReservaStatus.CANCELADA:
+            services.registrar_cancelamento(
+                reserva=obj,
+                usuario=request.user,
+                motivo='Cancelada via admin',
+            )
+
     def cancelar_reservas_selecionadas(self, request, queryset):
         reservas_ativas = queryset.filter(status=ReservaStatus.ATIVA)
         canceladas = 0
         for reserva in reservas_ativas:
-            reserva.status = ReservaStatus.CANCELADA
-            reserva.save()
-            CancelamentoReserva.objects.create(
-                reserva=reserva,
-                motivo='Cancelada via admin',
-                cancelado_por=request.user,
-            )
-            canceladas += 1
+            try:
+                services.cancelar_reserva(
+                    reserva=reserva,
+                    usuario=request.user,
+                    motivo='Cancelada via admin',
+                )
+            except (DomainError, PermissionDenied) as exc:
+                self.message_user(request, str(exc), level=messages.ERROR)
+            else:
+                canceladas += 1
         self.message_user(request, f'{canceladas} reserva(s) cancelada(s) com sucesso.')
     cancelar_reservas_selecionadas.short_description = 'Cancelar reservas selecionadas'
 

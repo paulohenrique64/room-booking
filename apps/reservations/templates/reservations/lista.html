@@ -5,7 +5,7 @@
   <h1 class="h3 mb-0">Reservas</h1>
   <a href="{% url 'reservations:nova' %}" class="btn btn-primary">Nova reserva</a>
 </div>
-<form class="row g-2 mb-4" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">
+<form id="reservas-filtro" class="row g-2 mb-4" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">
   <div class="col-md-4"><label class="form-label">Status</label>{{ filtro_form.status }}</div>
   <div class="col-md-4"><label class="form-label">Data</label>{{ filtro_form.data }}</div>
   <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-outline-secondary w-100">Filtrar</button></div>
