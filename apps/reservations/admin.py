@@ -11,7 +11,7 @@ class HistoricoReservaInline(admin.TabularInline):
     readonly_fields = ['acao', 'usuario', 'data_hora', 'descricao']
     can_delete = False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
@@ -21,7 +21,7 @@ class CancelamentoReservaInline(admin.StackedInline):
     readonly_fields = ['data_cancelamento']
     can_delete = False
 
-    def has_add_permission(self, request):
+    def has_add_permission(self, request, obj):
         return False
 
 
