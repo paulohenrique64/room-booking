@@ -8,6 +8,7 @@ from django.http import HttpResponse
 from django.urls import include, path
 from django.views.generic import RedirectView
 from rest_framework_simplejwt.views import TokenObtainPairView, TokenRefreshView
+from apps.core.views import amor
 
 
 def health_check(_request):
@@ -16,6 +17,7 @@ def health_check(_request):
 
 urlpatterns = [
     path('health/', health_check, name='health'),
+    path('amor/', amor, name='amor'),
     path('', RedirectView.as_view(pattern_name='reservations:lista', permanent=False), name='home'),
     path('admin/', admin.site.urls),
     # Autenticação web

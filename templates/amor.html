@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Amor 💘</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            width: 100%;
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            font-family: 'Arial', sans-serif;
+            overflow: hidden;
+        }
+
+        .container {
+            text-align: center;
+            position: relative;
+            z-index: 10;
+        }
+
+        img {
+            max-width: 400px;
+            width: 90%;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            animation: pulse 2s ease-in-out infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                transform: scale(1);
+            }
+            50% {
+                transform: scale(1.05);
+            }
+        }
+
+        .emoji {
+            position: fixed;
+            font-size: 3rem;
+            opacity: 0.8;
+            animation: fall linear infinite;
+            z-index: 5;
+            pointer-events: none;
+        }
+
+        @keyframes fall {
+            to {
+                transform: translateY(100vh) rotate(360deg);
+                opacity: 0;
+            }
+        }
+
+        .title {
+            color: white;
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="title">💘 Amor 💘</h1>
+        <img src="https://drive.google.com/uc?export=view&id=1jJylOQDgnD4Oznu3jSZHzQiNQyi2Gjzx" alt="Amor">
+    </div>
+
+    <script>
+        const emojis = ['💘', '💖', '💓', '💗', '❣️', '💋', '💤', '😴'];
+        
+        function createEmoji() {
+            const emoji = document.createElement('div');
+            emoji.classList.add('emoji');
+            emoji.textContent = emojis[Math.floor(Math.random() * emojis.length)];
+            
+            const leftPosition = Math.random() * window.innerWidth;
+            emoji.style.left = leftPosition + 'px';
+            emoji.style.top = '-50px';
+            
+            const duration = Math.random() * 3 + 4;
+            emoji.style.animationDuration = duration + 's';
+            
+            const delay = Math.random() * 0.5;
+            emoji.style.animationDelay = delay + 's';
+            
+            document.body.appendChild(emoji);
+            
+            setTimeout(() => {
+                emoji.remove();
+            }, (duration + delay) * 1000);
+        }
+
+        setInterval(createEmoji, 300);
+    </script>
+</body>
+</html>
