@@ -24,8 +24,8 @@ Parte 1 do nosso trabalho: criar o backend do sistema de agendamento de salas (m
 ## Quick Start (Docker recomendado)
 
 ```bash
-docker-compose --env-file .env.docker build
-docker-compose --env-file .env.docker up -d
+docker-compose build
+docker-compose up -d
 ```
 
 - **Web:** http://localhost:8080/
@@ -35,16 +35,17 @@ docker-compose --env-file .env.docker up -d
 Para comandos do Django dentro do container:
 
 ```bash
-docker-compose --env-file .env.docker exec web python manage.py createsuperuser
-docker-compose --env-file .env.docker exec web python manage.py shell
+docker-compose exec web python manage.py createsuperuser
+docker-compose exec web python manage.py shell
 ```
 
 ## Quick Start (Local)
 
-Requer MySQL rodando no host e um `.env` com `DB_HOST=localhost`.
+Requer MySQL rodando no host e um `.env.local` com `DB_HOST=localhost`.
 
 ```bash
-cp .env.example .env   # ajuste DB_* e SECRET_KEY
+cp .env.example .env.local   # ajuste DB_* e SECRET_KEY
+export $(grep -v '^#' .env.local | xargs)
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -r requirements.txt
@@ -68,9 +69,9 @@ python manage.py runserver 0.0.0.0:8000
 ## Docker
 
 ```bash
-docker-compose --env-file .env.docker config
-docker-compose --env-file .env.docker build
-docker-compose --env-file .env.docker up -d
+docker-compose config
+docker-compose build
+docker-compose up -d
 ```
 
 Com Docker, acesse `http://localhost:8080`. O MySQL roda apenas na rede interna do compose em `db:3306`, sem publicar a porta `3306` no host. Veja mais detalhes em `DOCKER.md`.

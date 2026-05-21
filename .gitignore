@@ -13,8 +13,8 @@ dist/
 build/
 
 /.env.example
-/.env.docker
 /.env
+.env.local
 .env
 *.log
 

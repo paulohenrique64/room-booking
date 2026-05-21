@@ -5,9 +5,9 @@ Este projeto roda em um unico stack Docker Compose com Django, MySQL e Nginx.
 ## Quick Start
 
 ```bash
-docker-compose --env-file .env.docker config
-docker-compose --env-file .env.docker build
-docker-compose --env-file .env.docker up -d
+docker-compose config
+docker-compose build
+docker-compose up -d
 ```
 
 A aplicacao fica disponivel em:
@@ -34,7 +34,7 @@ O MySQL nao publica a porta `3306` no host. A aplicacao Django conecta no banco 
 
 ## Variaveis
 
-Configure `.env.docker`:
+Configure `.env`:
 
 ```env
 APP_PORT=8080
@@ -59,28 +59,28 @@ DJANGO_SUPERUSER_PASSWORD=admin123
 ## Comandos
 
 ```bash
-docker-compose --env-file .env.docker ps
-docker-compose --env-file .env.docker logs -f
-docker-compose --env-file .env.docker logs -f web
-docker-compose --env-file .env.docker logs -f db
-docker-compose --env-file .env.docker logs -f nginx
-docker-compose --env-file .env.docker exec web python manage.py shell
-docker-compose --env-file .env.docker exec web python manage.py migrate
-docker-compose --env-file .env.docker exec web python manage.py collectstatic --noinput --clear
+docker-compose ps
+docker-compose logs -f
+docker-compose logs -f web
+docker-compose logs -f db
+docker-compose logs -f nginx
+docker-compose exec web python manage.py shell
+docker-compose exec web python manage.py migrate
+docker-compose exec web python manage.py collectstatic --noinput --clear
 ```
 
 Para recriar tudo sem preservar dados do banco:
 
 ```bash
-docker-compose --env-file .env.docker down -v --remove-orphans
-docker-compose --env-file .env.docker up -d
+docker-compose down -v --remove-orphans
+docker-compose up -d
 ```
 
 ## Validacao Manual
 
 ```bash
-docker compose --env-file .env.docker config
-docker compose --env-file .env.docker ps
+docker-compose config
+docker-compose ps
 curl -f http://localhost:8080/health/
 ```
 
