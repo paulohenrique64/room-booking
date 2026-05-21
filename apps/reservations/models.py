@@ -4,16 +4,11 @@ from django.db import models
 from django.utils import timezone
 
 from apps.rooms.models import Sala
+from .constants import ReservaStatus, HistoricoAcao
 
 
 class Reserva(models.Model):
     """Reservas de salas por professores."""
-
-    STATUS_CHOICES = [
-        ('ativa', 'Ativa'),
-        ('cancelada', 'Cancelada'),
-        ('finalizada', 'Finalizada'),
-    ]
 
     sala = models.ForeignKey(Sala, on_delete=models.CASCADE, related_name='reservas')
     professor = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reservas')
@@ -21,7 +16,11 @@ class Reserva(models.Model):
     hora_inicio = models.TimeField()
     hora_fim = models.TimeField()
     motivo = models.CharField(max_length=255)
-    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='ativa')
+    status = models.CharField(
+        max_length=20,
+        choices=ReservaStatus.choices,
+        default=ReservaStatus.ATIVA
+    )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -47,7 +46,7 @@ class Reserva(models.Model):
         conflitos = Reserva.objects.filter(
             sala=self.sala,
             data=self.data,
-            status='ativa',
+            status=ReservaStatus.ATIVA,
         ).exclude(pk=self.pk)
 
         for reserva in conflitos:
@@ -82,15 +81,8 @@ class CancelamentoReserva(models.Model):
 class HistoricoReserva(models.Model):
     """Auditoria completa de ações em reservas."""
 
-    ACAO_CHOICES = [
-        ('criada', 'Criada'),
-        ('cancelada', 'Cancelada'),
-        ('editada', 'Editada'),
-        ('finalizada', 'Finalizada'),
-    ]
-
     reserva = models.ForeignKey(Reserva, on_delete=models.CASCADE, related_name='historico')
-    acao = models.CharField(max_length=20, choices=ACAO_CHOICES)
+    acao = models.CharField(max_length=20, choices=HistoricoAcao.choices)
     descricao = models.TextField(blank=True)
     usuario = models.ForeignKey(User, on_delete=models.SET_NULL, null=True)
     data_hora = models.DateTimeField(auto_now_add=True)

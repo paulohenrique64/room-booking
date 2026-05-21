@@ -2,8 +2,9 @@ from datetime import date, timedelta
 
 from django.utils import timezone
 
+from apps.core.utils import parse_data
 from apps.rooms.models import Sala
-
+from .constants import ReservaStatus
 from .models import Reserva
 
 
@@ -18,7 +19,7 @@ def reservas_para_usuario(usuario):
 def horarios_bloqueados(sala, data: date):
     """Retorna lista de horários ocupados para uma sala em uma data."""
     reservas = (
-        Reserva.objects.filter(sala=sala, data=data, status='ativa')
+        Reserva.objects.filter(sala=sala, data=data, status=ReservaStatus.ATIVA)
         .select_related('professor')
         .order_by('hora_inicio')
     )
@@ -49,7 +50,7 @@ def proximas_reservas_usuario(usuario, dias=30):
     hoje = timezone.now().date()
     return (
         reservas_para_usuario(usuario)
-        .filter(data__gte=hoje, data__lte=hoje + timedelta(days=dias), status='ativa')
+        .filter(data__gte=hoje, data__lte=hoje + timedelta(days=dias), status=ReservaStatus.ATIVA)
         .order_by('data', 'hora_inicio')
     )
 

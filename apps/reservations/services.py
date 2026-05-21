@@ -1,7 +1,8 @@
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
-from .exceptions import DomainError
+from apps.core.exceptions import DomainError
+from .constants import ReservaStatus, HistoricoAcao
 from .models import CancelamentoReserva, HistoricoReserva, Reserva
 
 
@@ -28,7 +29,7 @@ def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, motivo) -> Re
     reserva.save()
     HistoricoReserva.objects.create(
         reserva=reserva,
-        acao='criada',
+        acao=HistoricoAcao.CRIADA,
         usuario=professor,
         descricao='Reserva criada',
     )
@@ -40,7 +41,7 @@ def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_i
     if not usuario.is_staff and reserva.professor_id != usuario.id:
         raise PermissionDenied('Você só pode editar suas próprias reservas.')
 
-    if reserva.status != 'ativa':
+    if reserva.status != ReservaStatus.ATIVA:
         raise DomainError('Não é possível editar uma reserva cancelada ou finalizada.')
 
     if sala is not None:
@@ -62,7 +63,7 @@ def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_i
     reserva.save()
     HistoricoReserva.objects.create(
         reserva=reserva,
-        acao='editada',
+        acao=HistoricoAcao.EDITADA,
         usuario=usuario,
         descricao='Reserva editada',
     )
@@ -74,10 +75,10 @@ def cancelar_reserva(*, reserva: Reserva, usuario, motivo: str) -> Reserva:
     if not usuario.is_staff and reserva.professor_id != usuario.id:
         raise PermissionDenied('Você só pode cancelar suas próprias reservas.')
 
-    if reserva.status == 'cancelada':
+    if reserva.status == ReservaStatus.CANCELADA:
         raise DomainError('Esta reserva já foi cancelada')
 
-    reserva.status = 'cancelada'
+    reserva.status = ReservaStatus.CANCELADA
     reserva.save(update_fields=['status', 'atualizado_em'])
 
     CancelamentoReserva.objects.create(
@@ -87,7 +88,7 @@ def cancelar_reserva(*, reserva: Reserva, usuario, motivo: str) -> Reserva:
     )
     HistoricoReserva.objects.create(
         reserva=reserva,
-        acao='cancelada',
+        acao=HistoricoAcao.CANCELADA,
         usuario=usuario,
         descricao=f'Reserva cancelada: {motivo}',
     )

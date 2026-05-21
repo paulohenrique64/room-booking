@@ -1,6 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
+from .constants import ReservaStatus
 from .models import CancelamentoReserva, HistoricoReserva, Reserva
 
 
@@ -65,19 +66,23 @@ class ReservaAdmin(admin.ModelAdmin):
     duracao_display.short_description = 'Duração'
 
     def status_display(self, obj):
-        colors = {'ativa': 'green', 'cancelada': 'red', 'finalizada': 'gray'}
+        colors = {
+            ReservaStatus.ATIVA: 'green',
+            ReservaStatus.CANCELADA: 'red',
+            ReservaStatus.FINALIZADA: 'gray'
+        }
         color = colors.get(obj.status, 'gray')
-        status_label = dict(Reserva.STATUS_CHOICES).get(obj.status, obj.status)
+        status_label = dict(ReservaStatus.choices).get(obj.status, obj.status)
         return format_html(f'<span style="color: {color}; font-weight: bold;">{status_label}</span>')
     status_display.short_description = 'Status'
 
     actions = ['cancelar_reservas_selecionadas']
 
     def cancelar_reservas_selecionadas(self, request, queryset):
-        reservas_ativas = queryset.filter(status='ativa')
+        reservas_ativas = queryset.filter(status=ReservaStatus.ATIVA)
         canceladas = 0
         for reserva in reservas_ativas:
-            reserva.status = 'cancelada'
+            reserva.status = ReservaStatus.CANCELADA
             reserva.save()
             CancelamentoReserva.objects.create(
                 reserva=reserva,

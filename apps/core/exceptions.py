@@ -1,6 +1,16 @@
 from rest_framework.views import exception_handler
 
 
+class DomainError(Exception):
+    """
+    Exceção para erros de lógica de negócio / domain.
+    
+    Usada para validações que violam regras de negócio,
+    não apenas validações de dados.
+    """
+    pass
+
+
 def custom_exception_handler(exc, context):
     """Handler centralizado para padronizar respostas de erro da API."""
     response = exception_handler(exc, context)
