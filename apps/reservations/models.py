@@ -5,7 +5,6 @@ from django.utils import timezone
 
 from apps.rooms.models import Sala
 from .constants import ReservaStatus, HistoricoAcao
-from .managers import ReservaManager
 
 
 class Reserva(models.Model):
@@ -24,8 +23,6 @@ class Reserva(models.Model):
     )
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
-    
-    objects = ReservaManager()
 
     class Meta:
         ordering = ['-data', '-hora_inicio']
