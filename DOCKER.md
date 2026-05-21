@@ -5,9 +5,9 @@ Este projeto roda em um unico stack Docker Compose com Django, MySQL e Nginx.
 ## Quick Start
 
 ```bash
-./docker-manage.sh config
-./docker-manage.sh build
-./docker-manage.sh up-d
+docker-compose --env-file .env.docker config
+docker-compose --env-file .env.docker build
+docker-compose --env-file .env.docker up -d
 ```
 
 A aplicacao fica disponivel em:
@@ -59,21 +59,21 @@ DJANGO_SUPERUSER_PASSWORD=admin123
 ## Comandos
 
 ```bash
-./docker-manage.sh ps
-./docker-manage.sh logs
-./docker-manage.sh logs-web
-./docker-manage.sh logs-db
-./docker-manage.sh logs-nginx
-./docker-manage.sh shell
-./docker-manage.sh migrate
-./docker-manage.sh collectstatic
+docker-compose --env-file .env.docker ps
+docker-compose --env-file .env.docker logs -f
+docker-compose --env-file .env.docker logs -f web
+docker-compose --env-file .env.docker logs -f db
+docker-compose --env-file .env.docker logs -f nginx
+docker-compose --env-file .env.docker exec web python manage.py shell
+docker-compose --env-file .env.docker exec web python manage.py migrate
+docker-compose --env-file .env.docker exec web python manage.py collectstatic --noinput --clear
 ```
 
 Para recriar tudo sem preservar dados do banco:
 
 ```bash
-./docker-manage.sh clean
-./docker-manage.sh up-d
+docker-compose --env-file .env.docker down -v --remove-orphans
+docker-compose --env-file .env.docker up -d
 ```
 
 ## Validacao Manual

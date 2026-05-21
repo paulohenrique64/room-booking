@@ -23,6 +23,13 @@ services:
     restart: unless-stopped
     env_file:
       - .env.docker
+    command:
+      - sh
+      - -c
+      - >
+        python manage.py migrate --noinput &&
+        python manage.py collectstatic --noinput --clear &&
+        exec gunicorn --bind 0.0.0.0:8000 --workers $${GUNICORN_WORKERS:-4} --timeout $${GUNICORN_TIMEOUT:-60} config.wsgi:application
     environment:
       DJANGO_SETTINGS_MODULE: config.settings.docker
       DB_HOST: db

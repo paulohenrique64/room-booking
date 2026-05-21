@@ -2,6 +2,8 @@
 
 Backend Django com interface **HTMX + Bootstrap** e API REST opcional (JWT).
 
+Parte 1 do nosso trabalho: criar o backend do sistema de agendamento de salas (modelos, regras de negocio, telas e API REST).
+
 ## Estrutura
 
 ```
@@ -19,11 +21,35 @@ Backend Django com interface **HTMX + Bootstrap** e API REST opcional (JWT).
 └── static/
 ```
 
-## Quick Start
+## Quick Start (Docker recomendado)
+
+```bash
+docker-compose --env-file .env.docker build
+docker-compose --env-file .env.docker up -d
+```
+
+- **Web:** http://localhost:8080/
+- **Admin:** http://localhost:8080/admin/
+- **API:** http://localhost:8080/api/v1/
+
+Para comandos do Django dentro do container:
+
+```bash
+docker-compose --env-file .env.docker exec web python manage.py createsuperuser
+docker-compose --env-file .env.docker exec web python manage.py shell
+```
+
+## Quick Start (Local)
+
+Requer MySQL rodando no host e um `.env` com `DB_HOST=localhost`.
 
 ```bash
 cp .env.example .env   # ajuste DB_* e SECRET_KEY
-./run.sh
+python3 -m venv .venv
+source .venv/bin/activate
+pip install -r requirements.txt
+python manage.py migrate
+python manage.py runserver 0.0.0.0:8000
 ```
 
 - **Reservas (web):** http://localhost:8000/reservas/
@@ -42,9 +68,9 @@ cp .env.example .env   # ajuste DB_* e SECRET_KEY
 ## Docker
 
 ```bash
-./docker-manage.sh config
-./docker-manage.sh build
-./docker-manage.sh up-d
+docker-compose --env-file .env.docker config
+docker-compose --env-file .env.docker build
+docker-compose --env-file .env.docker up -d
 ```
 
 Com Docker, acesse `http://localhost:8080`. O MySQL roda apenas na rede interna do compose em `db:3306`, sem publicar a porta `3306` no host. Veja mais detalhes em `DOCKER.md`.
