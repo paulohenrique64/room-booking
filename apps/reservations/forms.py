@@ -2,6 +2,7 @@ from django import forms
 
 from apps.rooms.models import Sala
 
+from .constants import ReservaStatus
 from .models import Reserva
 
 
@@ -32,7 +33,7 @@ class ReservaCancelarForm(forms.Form):
 class ReservaFiltroForm(forms.Form):
     status = forms.ChoiceField(
         required=False,
-        choices=[('', 'Todos')] + list(Reserva.STATUS_CHOICES),
+        choices=[('', 'Todos')] + list(ReservaStatus.choices),
         widget=forms.Select(attrs={'class': 'form-select'}),
     )
     data = forms.DateField(

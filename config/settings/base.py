@@ -7,6 +7,7 @@ import os
 
 from django.contrib.messages import constants as message_constants
 from dotenv import load_dotenv
+from config.settings.logging import LOGGING
 
 load_dotenv()
 

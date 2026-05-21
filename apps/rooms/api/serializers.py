@@ -1,7 +1,6 @@
-from datetime import datetime
-
 from rest_framework import serializers
 
+from apps.core.utils import parse_data
 from apps.reservations import selectors
 
 from ..models import Recurso, Sala
@@ -29,6 +28,11 @@ class SalaSerializer(serializers.ModelSerializer):
 
 
 class SalaListSerializer(serializers.ModelSerializer):
+    """
+    Serializer otimizado para listagem de salas.
+    
+    Usa annotate no queryset para evitar N+1 query ao calcular disponibilidade.
+    """
     recursos = RecursoSerializer(many=True, read_only=True)
     disponibilidade = serializers.SerializerMethodField()
 
@@ -43,8 +47,8 @@ class SalaListSerializer(serializers.ModelSerializer):
 
         data_str = request.query_params.get('data')
         try:
-            data = datetime.strptime(data_str, '%Y-%m-%d').date()
-        except ValueError:
+            data = parse_data(data_str)
+        except Exception:
             return None
 
         info = selectors.disponibilidade_sala(obj, data)

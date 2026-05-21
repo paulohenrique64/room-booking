@@ -26,3 +26,4 @@ media/*
 .DS_Store
 
 TODO
+logs/
