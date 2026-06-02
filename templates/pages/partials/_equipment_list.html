@@ -15,15 +15,14 @@
                    title="Editar">
                     <span class="material-symbols-outlined text-[15px]">edit</span>
                 </a>
-                    <form method="post" 
-                        action="{% url 'equipment_delete' equipamento.pk %}" 
-                        hx-delete="{% url 'equipment_delete' equipamento.pk %}" 
-                        hx-target="closest div.bento-card" 
-                        hx-swap="delete"
-                      class="inline"
-                      onsubmit="return confirm('Tem certeza que deseja deletar este equipamento?')">
+                                <form class="inline">
                     {% csrf_token %}
-                    <button type="submit" 
+                                            <button type="button" 
+                                                hx-delete="{% url 'equipment_delete' equipamento.pk %}"
+                                                hx-target="#equipment-list-container"
+                                                hx-swap="innerHTML"
+                                                        hx-confirm="Tem certeza que deseja deletar este equipamento?"
+                                                        hx-include="closest form"
                             class="p-1.5 text-outline-border hover:text-error-base hover:bg-error-container border border-outline-variant rounded-lg transition-colors cursor-pointer"
                             title="Excluir">
                         <span class="material-symbols-outlined text-[15px]">delete</span>

@@ -191,11 +191,11 @@ def equipamento_modal(request, pk=None):
 
 
 def equipamento_delete(request, pk):
-    recurso = get_object_or_404(Recurso, pk=pk)
     if request.method in ('POST', 'DELETE'):
-        recurso.delete()
+        Recurso.objects.filter(pk=pk).delete()
         if getattr(request, 'htmx', False):
-            return HttpResponse(status=204)
+            equipamentos = Recurso.objects.all().prefetch_related('salas').order_by('nome')
+            return render(request, 'pages/partials/_equipment_list.html', {'equipamentos': equipamentos})
         return redirect('equipment')
     return HttpResponse(status=405)
 
