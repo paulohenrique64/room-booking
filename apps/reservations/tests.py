@@ -42,7 +42,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula de redes',
+            titulo='Aula de redes',
         )
 
         self.assertEqual(reserva.status, ReservaStatus.ATIVA)
@@ -61,7 +61,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(10, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
 
         with self.assertRaises(DomainError):
@@ -71,7 +71,7 @@ class ReservaServiceTests(TestCase):
                 data=self.amanha,
                 hora_inicio=time(9, 0),
                 hora_fim=time(11, 0),
-                motivo='Reuniao',
+                titulo='Reuniao',
             )
 
     def test_criar_reserva_permite_horario_adjacente(self):
@@ -81,7 +81,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
 
         reserva = services.criar_reserva(
@@ -90,7 +90,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(9, 0),
             hora_fim=time(10, 0),
-            motivo='Reuniao',
+            titulo='Reuniao',
         )
 
         self.assertEqual(reserva.hora_inicio, time(9, 0))
@@ -102,7 +102,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
 
         services.cancelar_reserva(reserva=reserva, usuario=self.professor, motivo='Sem turma')
@@ -119,7 +119,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
 
         with self.assertRaises(PermissionDenied):
@@ -132,7 +132,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
 
         services.cancelar_reserva(reserva=reserva, usuario=self.staff, motivo='Manutencao')
@@ -148,7 +148,7 @@ class ReservaServiceTests(TestCase):
                 data=self.amanha,
                 hora_inicio=time(8, 0),
                 hora_fim=time(9, 0),
-                motivo='Aula',
+                titulo='Aula',
             )
 
     def test_cancelar_reserva_finalizada_retorna_erro_de_dominio(self):
@@ -158,7 +158,7 @@ class ReservaServiceTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         reserva.status = ReservaStatus.FINALIZADA
         reserva.save(update_fields=['status'])
@@ -180,7 +180,7 @@ class ReservaSelectorTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.reserva_outro = services.criar_reserva(
             professor=self.outro_professor,
@@ -188,7 +188,7 @@ class ReservaSelectorTests(TestCase):
             data=self.amanha,
             hora_inicio=time(9, 0),
             hora_fim=time(10, 0),
-            motivo='Reuniao',
+            titulo='Reuniao',
         )
 
     def test_reservas_para_usuario_filtra_por_professor(self):
@@ -232,7 +232,7 @@ class ReservaViewTests(TestCase):
                 'data': self.amanha.isoformat(),
                 'hora_inicio': '08:00',
                 'hora_fim': '09:00',
-                'motivo': 'Aula',
+                'titulo': 'Aula',
             },
         )
 
@@ -249,7 +249,7 @@ class ReservaViewTests(TestCase):
                 'data': self.amanha.isoformat(),
                 'hora_inicio': '08:00',
                 'hora_fim': '09:00',
-                'motivo': 'Aula',
+                'titulo': 'Aula',
             },
             HTTP_HX_REQUEST='true',
         )
@@ -266,7 +266,7 @@ class ReservaViewTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         services.criar_reserva(
             professor=self.professor,
@@ -274,7 +274,7 @@ class ReservaViewTests(TestCase):
             data=self.amanha + timedelta(days=1),
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula futura',
+            titulo='Aula futura',
         )
 
         response = self.client.post(
@@ -328,7 +328,7 @@ class ReservaApiTests(APITestCase):
                 'data': self.amanha.isoformat(),
                 'hora_inicio': '08:00:00',
                 'hora_fim': '09:00:00',
-                'motivo': 'Aula',
+                'titulo': 'Aula',
             },
             format='json',
         )
@@ -348,7 +348,7 @@ class ReservaApiTests(APITestCase):
                 'data': self.amanha.isoformat(),
                 'hora_inicio': '08:00:00',
                 'hora_fim': '09:00:00',
-                'motivo': 'Aula',
+                'titulo': 'Aula',
             },
             format='json',
         )
@@ -362,7 +362,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(10, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.client.force_authenticate(self.outro_professor)
 
@@ -373,7 +373,7 @@ class ReservaApiTests(APITestCase):
                 'data': self.amanha.isoformat(),
                 'hora_inicio': '09:00:00',
                 'hora_fim': '11:00:00',
-                'motivo': 'Reuniao',
+                'titulo': 'Reuniao',
             },
             format='json',
         )
@@ -387,7 +387,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         services.criar_reserva(
             professor=self.outro_professor,
@@ -395,7 +395,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(9, 0),
             hora_fim=time(10, 0),
-            motivo='Reuniao',
+            titulo='Reuniao',
         )
         self.client.force_authenticate(self.professor)
 
@@ -411,7 +411,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         outra = services.criar_reserva(
             professor=self.outro_professor,
@@ -419,7 +419,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(9, 0),
             hora_fim=time(10, 0),
-            motivo='Reuniao',
+            titulo='Reuniao',
         )
         self.client.force_authenticate(self.staff)
 
@@ -451,7 +451,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 30),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.client.force_authenticate(self.professor)
 
@@ -472,7 +472,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.client.force_authenticate(self.professor)
 
@@ -496,7 +496,7 @@ class ReservaApiTests(APITestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.client.force_authenticate(self.professor)
 
@@ -539,7 +539,7 @@ class ReservaAdminTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         model_admin = ReservaAdmin(Reserva, admin.site)
 
@@ -561,7 +561,7 @@ class ReservaAdminTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         reserva.status = ReservaStatus.CANCELADA
         model_admin = ReservaAdmin(Reserva, admin.site)
@@ -597,7 +597,7 @@ class ReservaAdminTests(TestCase):
             data=self.amanha,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         model_admin = ReservaAdmin(Reserva, admin.site)
 

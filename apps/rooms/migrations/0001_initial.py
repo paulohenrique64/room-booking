@@ -24,6 +24,7 @@ class Migration(migrations.Migration):
                 ),
                 ("nome", models.CharField(max_length=100, unique=True)),
                 ("descricao", models.TextField(blank=True)),
+                ("quantidade", models.PositiveIntegerField(default=1)),
                 ("ativo", models.BooleanField(default=True)),
                 ("criado_em", models.DateTimeField(auto_now_add=True)),
                 ("atualizado_em", models.DateTimeField(auto_now=True)),

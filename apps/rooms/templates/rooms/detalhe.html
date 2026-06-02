@@ -1,11 +1,27 @@
 {% extends 'base.html' %}
 {% block title %}{{ sala.nome }}{% endblock %}
 {% block content %}
-<h1 class="h3">{{ sala.nome }}</h1>
-<p class="text-muted">{{ sala.predio }} — Andar {{ sala.andar }} · {{ sala.capacidade }} pessoas</p>
-<form class="row g-2 mb-3" hx-get="{% url 'rooms:detalhe' sala.pk %}" hx-target="#disponibilidade" hx-swap="innerHTML">
-  <div class="col-auto"><input type="date" name="data" class="form-control" value="{{ request.GET.data }}" required></div>
-  <div class="col-auto"><button class="btn btn-primary" type="submit">Consultar</button></div>
-</form>
-<div id="disponibilidade">{% include 'rooms/partials/_disponibilidade.html' %}</div>
+<div class="flex flex-col gap-6">
+  <div class="rounded-3xl border border-outline-variant bg-surface-card p-6 shadow-sm">
+    <div class="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+      <div>
+        <h1 class="text-2xl font-bold text-primary-base">{{ sala.nome }}</h1>
+        <p class="text-sm text-on-surface-variant">{{ sala.predio }} — Andar {{ sala.andar }} · {{ sala.capacidade }} pessoas</p>
+      </div>
+      <div class="rounded-2xl bg-primary-container/40 px-4 py-2 text-xs font-semibold text-on-primary-container">
+        Sala ativa
+      </div>
+    </div>
+  </div>
+  <div class="rounded-3xl border border-outline-variant bg-surface-card p-6 shadow-sm">
+    <form class="flex flex-col gap-4 md:flex-row md:items-end" hx-get="{% url 'rooms:detalhe' sala.pk %}" hx-target="#disponibilidade" hx-swap="innerHTML">
+      <div class="flex-1">
+        <label class="mb-2 block text-sm font-semibold text-on-surface">Data</label>
+        <input type="date" name="data" class="input-field" value="{{ request.GET.data }}" required>
+      </div>
+      <button class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light" type="submit">Consultar</button>
+    </form>
+    <div id="disponibilidade" class="mt-6">{% include 'rooms/partials/_disponibilidade.html' %}</div>
+  </div>
+</div>
 {% endblock %}

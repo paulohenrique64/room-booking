@@ -69,7 +69,7 @@ class ReservaSerializer(serializers.ModelSerializer):
         model = Reserva
         fields = [
             'id', 'sala', 'professor', 'data', 'hora_inicio', 'hora_fim',
-            'motivo', 'status', 'status_display', 'duracao', 'historico',
+            'titulo', 'status', 'status_display', 'duracao', 'historico',
             'cancelamento', 'criado_em', 'atualizado_em',
         ]
         read_only_fields = ['professor', 'criado_em', 'atualizado_em']
@@ -88,7 +88,7 @@ class ReservaCreateUpdateSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Reserva
-        fields = ['sala', 'data', 'hora_inicio', 'hora_fim', 'motivo']
+        fields = ['sala', 'data', 'hora_inicio', 'hora_fim', 'titulo']
 
     def validate(self, data):
         instance = getattr(self, 'instance', None)
@@ -97,7 +97,7 @@ class ReservaCreateUpdateSerializer(serializers.ModelSerializer):
             data=data.get('data', getattr(instance, 'data', None)),
             hora_inicio=data.get('hora_inicio', getattr(instance, 'hora_inicio', None)),
             hora_fim=data.get('hora_fim', getattr(instance, 'hora_fim', None)),
-            motivo=data.get('motivo', getattr(instance, 'motivo', '')),
+            titulo=data.get('titulo', getattr(instance, 'titulo', '')),
             professor=getattr(instance, 'professor', self.context['request'].user),
             status=getattr(instance, 'status', ReservaStatus.ATIVA),
         )

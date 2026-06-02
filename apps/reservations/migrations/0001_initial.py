@@ -30,7 +30,7 @@ class Migration(migrations.Migration):
                 ("data", models.DateField()),
                 ("hora_inicio", models.TimeField()),
                 ("hora_fim", models.TimeField()),
-                ("motivo", models.CharField(max_length=255)),
+                ("titulo", models.CharField(max_length=255)),
                 (
                     "status",
                     models.CharField(
@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("motivo", models.TextField()),
+                ("titulo", models.CharField(max_length=255)),
                 ("data_cancelamento", models.DateTimeField(auto_now_add=True)),
                 (
                     "cancelado_por",

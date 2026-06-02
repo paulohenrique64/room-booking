@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+{% block title %}Equipamentos — Room Booking{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none" id="equipment-view-panel">
+    <!-- Screen Header with CTA buttons -->
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant pb-6">
+        <div>
+            <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Equipamentos e Serviços</h2>
+            <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie equipamentos multimídia, projetores, displays LCD portáteis, sistemas de áudio e telecomunicação de escritórios.</p>
+        </div>
+        <a href="#" hx-get="{% url 'equipment_new' %}" hx-target="#modal-container" hx-swap="innerHTML" class="bg-primary-base hover:bg-primary-light text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            Novo Item
+        </a>
+    </div>
+
+    <!-- Equipment inventories grid list -->
+    <div id="equipment-list-container">
+        {% include 'pages/partials/_equipment_list.html' %}
+    </div>
+</div>
+{% endblock %}

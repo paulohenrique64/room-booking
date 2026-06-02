@@ -6,7 +6,8 @@ class Recurso(models.Model):
 
     nome = models.CharField(max_length=100, unique=True)
     descricao = models.TextField(blank=True)
-    ativo = models.BooleanField(default=True)
+    quantidade = models.PositiveIntegerField(default=1)
+    icone = models.CharField(max_length=50, default='videocam', help_text='Material Symbols icon name')
     criado_em = models.DateTimeField(auto_now_add=True)
     atualizado_em = models.DateTimeField(auto_now=True)
 
@@ -42,3 +43,26 @@ class Sala(models.Model):
 
     def __str__(self):
         return f'{self.nome} - {self.predio} ({self.capacidade} pessoas)'
+
+    @property
+    def image_url(self):
+        """Extrai a URL da imagem embutida em `descricao` no formato 'Imagem: {url} | texto'."""
+        descricao = (self.descricao or '')
+        marker = 'Imagem:'
+        if marker not in descricao:
+            return ''
+        remainder = descricao.split(marker, 1)[1].strip()
+        return remainder.split('|', 1)[0].strip()
+
+    @property
+    def short_descricao(self):
+        """Retorna a parte descritiva sem o marcador de imagem."""
+        descricao = (self.descricao or '')
+        marker = 'Imagem:'
+        if marker not in descricao:
+            return descricao
+        remainder = descricao.split(marker, 1)[1]
+        parts = remainder.split('|', 1)
+        if len(parts) == 2:
+            return parts[1].strip()
+        return ''

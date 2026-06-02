@@ -1,14 +1,37 @@
 {% extends 'base.html' %}
 {% block title %}Minhas Reservas{% endblock %}
 {% block content %}
-<div class="d-flex justify-content-between align-items-center mb-4">
-  <h1 class="h3 mb-0">Reservas</h1>
-  <a href="{% url 'reservations:nova' %}" class="btn btn-primary">Nova reserva</a>
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none" id="reservations-view-container">
+  <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant pb-6">
+    <div>
+      <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Minhas Reservas</h2>
+      <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie suas reservas ativas e histórico de salas.</p>
+    </div>
+    <button hx-get="{% url 'reservations:nova' %}"
+            hx-target="#modal-container"
+            hx-swap="innerHTML"
+            class="bg-primary-base hover:bg-primary-light text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-primary-base/10">
+      <span class="material-symbols-outlined text-[18px]">add</span>
+      Nova Reserva
+    </button>
+  </div>
+
+  <form id="reservas-filtro" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">
+    <div>
+      <label class="mb-2 block text-sm font-semibold text-on-surface" for="id_status">Status</label>
+      {{ filtro_form.status }}
+    </div>
+    <div>
+      <label class="mb-2 block text-sm font-semibold text-on-surface" for="id_data">Data</label>
+      {{ filtro_form.data }}
+    </div>
+    <div class="flex items-end">
+      <button type="submit" class="w-full rounded-xl border border-outline-variant px-4 py-2.5 text-sm font-semibold text-on-surface-variant transition-colors hover:bg-outline-variant/30 hover:text-on-surface hover:border-primary-base/30">
+        Filtrar reserva
+      </button>
+    </div>
+  </form>
+
+  {% include 'reservations/partials/_tabela_reservas.html' %}
 </div>
-<form id="reservas-filtro" class="row g-2 mb-4" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">
-  <div class="col-md-4"><label class="form-label">Status</label>{{ filtro_form.status }}</div>
-  <div class="col-md-4"><label class="form-label">Data</label>{{ filtro_form.data }}</div>
-  <div class="col-md-4 d-flex align-items-end"><button type="submit" class="btn btn-outline-secondary w-100">Filtrar</button></div>
-</form>
-{% include 'reservations/partials/_tabela_reservas.html' %}
 {% endblock %}

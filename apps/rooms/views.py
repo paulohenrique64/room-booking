@@ -4,6 +4,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.views.generic import DetailView, ListView
 
 from apps.core.mixins import HtmxMixin
+from apps.rooms.models import Recurso
 from apps.reservations import selectors
 
 from .models import Sala
@@ -17,7 +18,12 @@ class SalaListView(LoginRequiredMixin, HtmxMixin, ListView):
     paginate_by = 12
 
     def get_queryset(self):
-        return selectors.salas_ativas()
+        return Sala.objects.all()
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['equipamentos'] = Recurso.objects.all().order_by('nome')
+        return context
 
 
 class SalaDetailView(LoginRequiredMixin, HtmxMixin, DetailView):

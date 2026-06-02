@@ -6,14 +6,13 @@ from .models import Recurso, Sala
 
 @admin.register(Recurso)
 class RecursoAdmin(admin.ModelAdmin):
-    list_display = ['nome', 'descricao_curta', 'ativo', 'criado_em']
-    list_filter = ['ativo', 'criado_em']
+    list_display = ['nome', 'descricao_curta', 'quantidade', 'icone', 'criado_em']
+    list_filter = ['criado_em']
     search_fields = ['nome', 'descricao']
     readonly_fields = ['criado_em', 'atualizado_em']
 
     fieldsets = (
-        ('Informações', {'fields': ('nome', 'descricao')}),
-        ('Status', {'fields': ('ativo',)}),
+        ('Informações', {'fields': ('nome', 'descricao', 'icone', 'quantidade')}),
         ('Auditoria', {'fields': ('criado_em', 'atualizado_em'), 'classes': ('collapse',)}),
     )
 

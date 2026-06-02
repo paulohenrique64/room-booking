@@ -1,0 +1,122 @@
+{# room_extras removed; use form.selected_recursos_ids and Sala.image_url property from model #}
+{% if request.htmx %}
+<div id="modal-overlay" onclick="window.closeModal()" style="position:fixed;inset:0;background:rgba(18,28,42,0.36);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:60;">
+  <div onclick="event.stopPropagation()" style="background:#ffffff;width:100%;max-width:640px;border-radius:16px;box-shadow:0px 10px 35px rgba(0,0,0,0.12);border:1px solid var(--color-outline-variant);display:flex;flex-direction:column;overflow:hidden;max-height:90vh;">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant bg-surface select-none">
+      <h2 class="text-sm font-bold text-on-surface tracking-tight">{{ pk|yesno:"Editar Sala,Cadastrar Nova Sala" }}</h2>
+      <button class="text-on-surface-variant hover:text-primary-base transition-colors hover:bg-outline-variant/30 p-2 rounded-xl flex items-center justify-center cursor-pointer modal-close" onclick="window.closeModal()" aria-label="Fechar modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto flex-1 select-none">
+      {% if form.non_field_errors %}
+      <div class="mb-4 p-3 rounded-lg bg-error/10 border border-error text-error text-xs">
+        {% for error in form.non_field_errors %}
+          <p>{{ error }}</p>
+        {% endfor %}
+      </div>
+      {% endif %}
+      <form method="post" hx-post="{% if pk %}{% url 'room_edit' pk %}{% else %}{% url 'room_new' %}{% endif %}" hx-target="#rooms-list-container" hx-swap="outerHTML" hx-on:htmx:afterRequest="if(event.detail.successful) window.closeModal()" class="flex flex-col gap-4">
+        {% csrf_token %}
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Nome da Sala</label>
+          {{ form.nome }}
+          {% if form.nome.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.nome.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Prédio</label>
+            {{ form.predio }}
+            {% if form.predio.errors %}
+              <div class="text-xs text-error">
+                {% for error in form.predio.errors %}<p>{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+          <div class="flex flex-col gap-1.5">
+            <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Andar</label>
+            {{ form.andar }}
+            {% if form.andar.errors %}
+              <div class="text-xs text-error">
+                {% for error in form.andar.errors %}<p>{{ error }}</p>{% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Capacidade</label>
+          {{ form.capacidade }}
+          {% if form.capacidade.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.capacidade.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">URL da Imagem da Sala (Placeholder)</label>
+          {{ form.imagem_url }}
+          {% if form.imagem_url.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.imagem_url.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Descrição</label>
+          {{ form.descricao }}
+          {% if form.descricao.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.descricao.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5 mt-1 select-none">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Comodidades Pré-instaladas</label>
+          {% if form.recursos.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.recursos.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+          <div class="grid grid-cols-1 gap-2 mt-1 max-h-56 overflow-y-auto pr-1">
+            {% for recurso in form.recursos.field.queryset %}
+            <label class="flex items-center gap-2 text-xs font-semibold cursor-pointer rounded-xl border border-outline-variant px-3 py-2 hover:bg-surface-container/40 transition">
+              <input type="checkbox" name="recursos" value="{{ recurso.pk }}" {% if recurso.pk in form.selected_recursos_ids %}checked{% endif %} class="rounded border-outline-variant text-primary-base focus:ring-primary-base" />
+              <span class="material-symbols-outlined text-[16px] text-primary-base">{{ recurso.icone }}</span>
+              <span>{{ recurso.nome }}</span>
+            </label>
+            {% endfor %}
+          </div>
+        </div>
+
+        <label class="flex items-center gap-2 text-xs font-semibold cursor-pointer">
+          {{ form.ativa }}
+          <span>Sala ativa</span>
+        </label>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 rounded-xl bg-primary-base hover:bg-primary-light text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition cursor-pointer">Confirmar</button>
+          <button type="button" class="flex-1 rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-outline-variant/30 transition cursor-pointer modal-close" onclick="window.closeModal(); return false;" data-modal-close="true">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<div class="bento-card p-6">
+  <form method="post" class="flex flex-col gap-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Salvar</button>
+  </form>
+</div>
+{% endif %}

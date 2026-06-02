@@ -35,14 +35,14 @@ class ReservaAdmin(admin.ModelAdmin):
         'duracao_display', 'status_display', 'criado_em',
     ]
     list_filter = ['status', 'data', 'sala__predio', 'criado_em']
-    search_fields = ['sala__nome', 'professor__first_name', 'professor__last_name', 'motivo']
+    search_fields = ['sala__nome', 'professor__first_name', 'professor__last_name', 'titulo']
     readonly_fields = ['criado_em', 'atualizado_em']
     inlines = [HistoricoReservaInline, CancelamentoReservaInline]
     date_hierarchy = 'data'
 
     fieldsets = (
         ('Reserva', {'fields': ('sala', 'professor', 'data', 'hora_inicio', 'hora_fim')}),
-        ('Detalhes', {'fields': ('motivo', 'status')}),
+        ('Detalhes', {'fields': ('titulo', 'status')}),
         ('Auditoria', {'fields': ('criado_em', 'atualizado_em'), 'classes': ('collapse',)}),
     )
 

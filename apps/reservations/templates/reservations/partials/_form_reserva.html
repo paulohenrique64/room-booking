@@ -1,12 +1,98 @@
+{% if request.htmx %}
+<div id="modal-overlay" onclick="window.closeModal()" style="position:fixed;inset:0;background:rgba(18,28,42,0.36);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:60;">
+	<div onclick="event.stopPropagation()" style="background:#ffffff;width:100%;max-width:880px;border-radius:16px;box-shadow:0px 10px 35px rgba(0,0,0,0.12);border:1px solid var(--color-outline-variant);display:flex;flex-direction:column;overflow:hidden;max-height:90vh;">
+		<div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant bg-surface select-none">
+			<div>
+				<h2 class="text-lg font-bold text-on-surface tracking-tight">Criar Nova Reserva</h2>
+				<p class="text-xs text-on-surface-variant font-medium mt-0.5">Agende espaços de reunião e recursos multimídia.</p>
+			</div>
+			<button class="text-on-surface-variant hover:text-primary-base transition-colors hover:bg-outline-variant/30 p-2 rounded-xl flex items-center justify-center cursor-pointer modal-close" onclick="window.closeModal()" aria-label="Fechar modal">
+				<span class="material-symbols-outlined">close</span>
+			</button>
+		</div>
+		<div class="p-6 overflow-y-auto flex-1 h-full select-none">
+			<div id="form-reserva">
+				<form method="post" hx-post="{% if form.instance.pk %}{% url 'reservations:editar' form.instance.pk %}{% else %}{% url 'reservations:nova' %}{% endif %}" hx-target="#reservas-tabela" hx-swap="outerHTML" class="flex flex-col gap-6">
+					{% csrf_token %}
+					{% if form.non_field_errors %}
+					<div class="mb-4 rounded-xl border border-error-container bg-error-container/60 px-4 py-3 text-sm text-on-error-container">{{ form.non_field_errors }}</div>
+					{% endif %}
+
+					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+						<div class="flex flex-col gap-1.5">
+							<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Sala</label>
+							{{ form.sala }}
+							{% if form.sala.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.sala.errors }}</div>{% endif %}
+						</div>
+						<div class="flex flex-col gap-1.5">
+							<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Data</label>
+							{{ form.data }}
+							{% if form.data.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.data.errors }}</div>{% endif %}
+						</div>
+					</div>
+
+					<div class="grid grid-cols-2 gap-2">
+						<div class="flex flex-col gap-1.5">
+							<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Início</label>
+							{{ form.hora_inicio }}
+						</div>
+						<div class="flex flex-col gap-1.5">
+							<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fim</label>
+							{{ form.hora_fim }}
+						</div>
+					</div>
+
+					<div class="flex flex-col gap-1.5">
+						<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Título da reserva</label>
+						{{ form.titulo }}
+					</div>
+
+					<div class="flex flex-wrap gap-3 pt-2">
+						<button type="button" class="rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-outline-variant/30 modal-close" onclick="window.closeModal()">Fechar</button>
+						<button type="submit" class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Salvar</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% else %}
 <div id="form-reserva">
-<form method="post" hx-post="{% url 'reservations:nova' %}" hx-target="#form-reserva" hx-swap="outerHTML">
+<form method="post" hx-post="{% url 'reservations:nova' %}" hx-target="#form-reserva" hx-swap="outerHTML" class="flex flex-col gap-6">
 {% csrf_token %}
-{% if form.non_field_errors %}<div class="alert alert-danger">{{ form.non_field_errors }}</div>{% endif %}
-<div class="mb-3"><label class="form-label">Sala</label>{{ form.sala }}{% if form.sala.errors %}<div class="text-danger small">{{ form.sala.errors }}</div>{% endif %}</div>
-<div class="mb-3"><label class="form-label">Data</label>{{ form.data }}{% if form.data.errors %}<div class="text-danger small">{{ form.data.errors }}</div>{% endif %}</div>
-<div class="row"><div class="col mb-3"><label class="form-label">Início</label>{{ form.hora_inicio }}</div><div class="col mb-3"><label class="form-label">Fim</label>{{ form.hora_fim }}</div></div>
-<div class="mb-3"><label class="form-label">Motivo</label>{{ form.motivo }}</div>
-<button type="submit" class="btn btn-primary">Salvar</button>
-<a href="{% url 'reservations:lista' %}" class="btn btn-link">Voltar</a>
+{% if form.non_field_errors %}
+<div class="mb-4 rounded-xl border border-error-container bg-error-container/60 px-4 py-3 text-sm text-on-error-container">{{ form.non_field_errors }}</div>
+{% endif %}
+<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+	<div class="flex flex-col gap-1.5">
+		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Sala</label>
+		{{ form.sala }}
+		{% if form.sala.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.sala.errors }}</div>{% endif %}
+	</div>
+	<div class="flex flex-col gap-1.5">
+		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Data</label>
+		{{ form.data }}
+		{% if form.data.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.data.errors }}</div>{% endif %}
+	</div>
+</div>
+<div class="grid grid-cols-2 gap-2">
+		<div class="flex flex-col gap-1.5">
+				<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Início</label>
+				{{ form.hora_inicio }}
+		</div>
+		<div class="flex flex-col gap-1.5">
+				<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Fim</label>
+				{{ form.hora_fim }}
+		</div>
+</div>
+<div class="flex flex-col gap-1.5">
+		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Título da reserva</label>
+		{{ form.titulo }}
+</div>
+<div class="flex flex-wrap gap-3 pt-2">
+		<button type="submit" class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Salvar</button>
+		<a href="{% url 'reservations:lista' %}" class="rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container/40">Voltar</a>
+</div>
 </form>
 </div>
+{% endif %}

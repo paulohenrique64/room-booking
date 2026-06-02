@@ -12,7 +12,7 @@ from .serializers import RecursoSerializer, SalaListSerializer, SalaSerializer
 
 
 class RecursoViewSet(viewsets.ReadOnlyModelViewSet):
-    queryset = Recurso.objects.filter(ativo=True)
+    queryset = Recurso.objects.all()
     serializer_class = RecursoSerializer
     permission_classes = [IsAuthenticated]
 

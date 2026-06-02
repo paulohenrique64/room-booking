@@ -13,6 +13,7 @@ from apps.reservations.exceptions import DomainError
 from . import selectors, services
 from .forms import ReservaCancelarForm, ReservaFiltroForm, ReservaForm
 from .models import Reserva
+from django.views.generic.edit import UpdateView
 
 
 class ReservaListView(LoginRequiredMixin, HtmxMixin, ListView):
@@ -70,26 +71,33 @@ class ReservaCreateView(LoginRequiredMixin, HtmxMixin, CreateView):
         if getattr(self.request, 'htmx', False):
             response = HttpResponse(status=204)
             response['HX-Redirect'] = self.get_success_url()
+            response['HX-Trigger'] = 'modalClosed'
             return response
         return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        if getattr(self.request, 'htmx', False):
+            response['HX-Retarget'] = '#modal-container'
+        return response
 
 
 class ReservaCancelarView(LoginRequiredMixin, View):
     def post(self, request, pk):
-        reserva = get_object_or_404(selectors.reservas_para_usuario(request.user), pk=pk)
-        form = ReservaCancelarForm(request.POST)
+        return self._cancelar(request, pk)
 
-        if not form.is_valid():
-            messages.error(request, 'Informe o motivo do cancelamento.')
-            if getattr(request, 'htmx', False):
-                return self._render_lista_parcial(request)
-            return redirect('reservations:lista')
+    def delete(self, request, pk):
+        return self._cancelar(request, pk)
+
+    def _cancelar(self, request, pk):
+        reserva = get_object_or_404(selectors.reservas_para_usuario(request.user), pk=pk)
+        motivo = (request.POST.get('motivo') or 'Excluída pela interface.').strip()
 
         try:
             services.cancelar_reserva(
                 reserva=reserva,
                 usuario=request.user,
-                motivo=form.cleaned_data['motivo'],
+                motivo=motivo,
             )
         except DomainError as exc:
             messages.error(request, exc.message)
@@ -111,3 +119,37 @@ class ReservaCancelarView(LoginRequiredMixin, View):
             lista_view.partial_template_name,
             lista_view.get_context_data(),
         )
+
+
+class ReservaUpdateView(LoginRequiredMixin, HtmxMixin, UpdateView):
+    model = Reserva
+    form_class = ReservaForm
+    template_name = 'reservations/form.html'
+    partial_template_name = 'reservations/partials/_form_reserva.html'
+    success_url = reverse_lazy('reservations:lista')
+
+    def get_object(self, queryset=None):
+        return get_object_or_404(selectors.reservas_para_usuario(self.request.user), pk=self.kwargs.get('pk'))
+
+    def form_valid(self, form):
+        try:
+            # reuse service to update reservation if exists; services.criar_reserva handles creation
+            # here we simply save the form instance
+            self.object = form.save()
+        except DomainError as exc:
+            form.add_error(None, exc.message)
+            return self.form_invalid(form)
+
+        messages.success(self.request, 'Reserva atualizada com sucesso.')
+        if getattr(self.request, 'htmx', False):
+            response = HttpResponse(status=204)
+            response['HX-Redirect'] = self.get_success_url()
+            response['HX-Trigger'] = 'modalClosed'
+            return response
+        return redirect(self.success_url)
+
+    def form_invalid(self, form):
+        response = super().form_invalid(form)
+        if getattr(self.request, 'htmx', False):
+            response['HX-Retarget'] = '#modal-container'
+        return response

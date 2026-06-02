@@ -1,6 +1,32 @@
 {% extends 'base.html' %}
 {% block title %}Salas{% endblock %}
 {% block content %}
-<h1 class="h3 mb-4">Salas disponíveis</h1>
-{% include 'rooms/partials/_lista_salas.html' %}
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none" id="rooms-view-container">
+	<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant pb-6">
+		<div>
+			<h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Salas & Instalações</h2>
+			<p class="text-sm text-on-surface-variant font-medium mt-1">Visualize e gerencie salas físicas, capacidades e inventário.</p>
+		</div>
+		<div class="flex gap-3 w-full sm:w-auto">
+			<button class="flex-1 sm:flex-none border border-outline-border hover:bg-outline-variant/35 text-on-surface text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-surface-card"
+						hx-get="{% url 'equipment_new' %}?context=rooms"
+							hx-target="#modal-container"
+							hx-swap="innerHTML">
+				<span class="material-symbols-outlined text-[18px]">add</span>
+				Cadastrar Equipamento
+			</button>
+			<button class="flex-1 sm:flex-none bg-primary-base hover:bg-primary-light text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+					hx-get="{% url 'room_new' %}"
+					hx-target="#modal-container"
+					hx-swap="innerHTML">
+				<span class="material-symbols-outlined text-[18px]">add</span>
+				Cadastrar Sala
+			</button>
+		</div>
+	</div>
+
+	<div class="mt-6">
+		{% include 'rooms/partials/_lista_salas.html' %}
+	</div>
+</div>
 {% endblock %}

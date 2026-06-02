@@ -3,12 +3,12 @@
 {% block title %}Início — Agendamento de Salas{% endblock %}
 
 {% block content %}
-<section class="hero">
-    <h1>Sistema de Agendamento de Salas</h1>
-    <p>API REST para gerenciamento de salas e reservas universitárias.</p>
-    <p>
-        <a href="/api/v1/salas/">Ver salas (API)</a> |
-        <a href="/admin/">Painel administrativo</a>
-    </p>
+<section class="rounded-3xl border border-outline-variant bg-surface-card p-8 shadow-sm">
+    <h1 class="text-3xl font-bold text-primary-base">Sistema de Agendamento de Salas</h1>
+    <p class="mt-3 text-sm text-on-surface-variant">API REST e interface administrativa para salas e reservas universitarias.</p>
+    <div class="mt-6 flex flex-wrap gap-3">
+        <a href="/api/v1/salas/" class="rounded-xl border border-outline-variant px-4 py-2 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container/40">Ver salas (API)</a>
+        <a href="/admin/" class="rounded-xl bg-primary-base px-4 py-2 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Painel administrativo</a>
+    </div>
 </section>
 {% endblock %}

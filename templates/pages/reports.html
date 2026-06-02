@@ -1,0 +1,87 @@
+{% extends 'base.html' %}
+
+{% block title %}Relatórios — Room Booking{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none">
+    <!-- Screen Header -->
+    <div class="border-b border-outline-variant pb-6 mb-2">
+        <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Painel de Analíticos & Relatórios</h2>
+        <p class="text-sm text-on-surface-variant font-medium mt-1">Monitore volumes de agendamento de espaços, picos de ocupação diária e eficiência de capacidade estrutural.</p>
+    </div>
+
+    <!-- Telemetry bento card grids -->
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        
+        <!-- Total schedules gauge -->
+        <div class="bento-card py-6 flex flex-col justify-between items-center h-64 text-center">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider text-left w-full">Reservas Efetuadas (Hoje)</p>
+            
+            <!-- Circular SVG metric gauge -->
+            <div class="relative flex items-center justify-center w-32 h-32 my-2 select-none">
+                <svg class="w-full h-full transform -rotate-90" viewBox="0 0 100 100">
+                    <circle cx="50" cy="50" r="40" stroke="#f1f5f9" stroke-width="8" fill="transparent" />
+                    <!-- active gauge colored stroke -->
+                    <circle cx="50" cy="50" r="40" stroke="#3525cd" stroke-width="8" fill="transparent"
+                            stroke-dasharray="251.2" stroke-dashoffset="{{ stroke_dashoffset }}" stroke-linecap="round" />
+                </svg>
+                <div class="absolute flex flex-col items-center">
+                    <span class="text-2xl font-extrabold text-on-surface">{{ total_bookings }}</span>
+                    <span class="text-[9px] font-bold text-on-surface-variant uppercase mt-0.5">Ativas</span>
+                </div>
+            </div>
+            
+            <p class="text-[11px] text-on-surface-variant font-medium">Capacidade operacional estável de rede</p>
+        </div>
+
+        <!-- Room occupancy efficiency -->
+        <div class="bento-card py-6 flex flex-col justify-between h-64">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Eficiência de Uso Comum</p>
+            
+            <div class="space-y-4 my-2 flex-grow flex flex-col justify-center">
+                {% for room in room_utilization %}
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-on-surface mb-1">
+                        <span>{{ room.name }}</span>
+                        <span>{{ room.utilization }}%</span>
+                    </div>
+                    <div class="w-full bg-[#f1f5f9] h-2 rounded-full overflow-hidden">
+                        <div class="bg-primary-base h-full rounded-full" style="width: {{ room.utilization }}%"></div>
+                    </div>
+                </div>
+                {% endfor %}
+                {% if not room_utilization %}
+                <div>
+                    <div class="flex justify-between text-xs font-bold text-on-surface mb-1">
+                        <span>Sem dados</span>
+                        <span>0%</span>
+                    </div>
+                    <div class="w-full bg-[#f1f5f9] h-2 rounded-full overflow-hidden">
+                        <div class="bg-primary-base h-full rounded-full" style="width: 0%"></div>
+                    </div>
+                </div>
+                {% endif %}
+            </div>
+            
+            <p class="text-[11px] text-on-surface-variant font-medium">Médias ponderadas por tempo de locação ativa</p>
+        </div>
+
+        <!-- Hours usage highlights -->
+        <div class="bento-card py-6 flex flex-col justify-between h-64">
+            <p class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Picos de Lotação Presencial</p>
+            
+            <div class="flex flex-col justify-center flex-grow py-3">
+                <span class="text-3xl font-extrabold text-primary-base tracking-tight select-all">{{ peak_hour }}</span>
+                <p class="text-[11px] text-[#137333] font-bold mt-2.5 flex items-center gap-1 bg-[#e6f4ea] px-3 py-1.5 rounded-lg w-fit">
+                    <span class="material-symbols-outlined text-[15px] symbol-filled">done_all</span>
+                    Utilização média consolidada: {{ utilization_ratio }}
+                </p>
+            </div>
+
+            <p class="text-[11px] text-on-surface-variant font-medium">Taxas calculadas a partir de dados históricos Semanais</p>
+        </div>
+
+    </div>
+
+</div>
+{% endblock %}

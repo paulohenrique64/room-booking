@@ -1,0 +1,23 @@
+<ul class="flex flex-col divide-y divide-outline-variant">
+  {% for equipamento in equipamentos %}
+    <li class="py-3.5 first:pt-0 flex justify-between items-center group/item transition-colors">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-outline-variant/30 flex items-center justify-center text-primary-base shadow-sm">
+          <span class="material-symbols-outlined text-[18px]">{{ equipamento.icone }}</span>
+        </div>
+        <div>
+          <p class="text-xs font-bold text-on-surface">{{ equipamento.nome }}</p>
+          <p class="text-[10px] font-semibold text-on-surface-variant mt-0.5">Estoque: {{ equipamento.quantidade }} unidades</p>
+        </div>
+      </div>
+      <button class="p-1.5 text-outline-border hover:text-primary-base bg-surface hover:bg-outline-variant/30 border border-outline-variant rounded-lg transition-opacity flex items-center justify-center cursor-pointer md:opacity-0 md:group-hover/item:opacity-100"
+              hx-get="{% url 'equipment_edit' equipamento.pk %}?context=rooms"
+              hx-target="#modal-container"
+              hx-swap="innerHTML">
+        <span class="material-symbols-outlined text-[15px]">edit</span>
+      </button>
+    </li>
+  {% empty %}
+    <li class="py-3 text-xs text-on-surface-variant">Nenhum equipamento cadastrado.</li>
+  {% endfor %}
+</ul>
