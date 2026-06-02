@@ -47,6 +47,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                         'width': width,
                     }
                 )
+            self._add_booking_label_lanes(bookings)
 
             rooms_data.append(
                 {
@@ -55,6 +56,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                     'capacity': sala.capacidade,
                     'image': self._extract_image_url(sala.descricao),
                     'bookings': bookings,
+                    'track_height': 12 + (max((b['label_lane'] for b in bookings), default=0) + 1) * 40,
                 }
             )
 
@@ -122,8 +124,8 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         end = parse_time(end_time)
         start_hour = start.hour + start.minute / 60
         end_hour = end.hour + end.minute / 60
-        timeline_start = 9.0
-        total_hours = 6.0
+        timeline_start = 7.0
+        total_hours = 15.0
         timeline_end = timeline_start + total_hours
 
         clamped_start = max(timeline_start, min(timeline_end, start_hour))
@@ -133,17 +135,40 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
         left = ((clamped_start - timeline_start) / total_hours) * 100
         width = ((clamped_end - clamped_start) / total_hours) * 100
+        width = max(0.0, min(100.0 - left, width))
         return left, width
 
     def _get_now_offset(self):
         now = timezone.localtime().time()
         now_hour = now.hour + now.minute / 60 + now.second / 3600
-        timeline_start = 9.0
-        total_hours = 6.0
+        timeline_start = 7.0
+        total_hours = 15.0
         timeline_end = timeline_start + total_hours
 
         clamped_now = max(timeline_start, min(timeline_end, now_hour))
-        return ((clamped_now - timeline_start) / total_hours) * 100
+        position = ((clamped_now - timeline_start) / total_hours) * 100
+        return max(0.5, min(99.5, position))
+
+    def _add_booking_label_lanes(self, bookings):
+        lanes = []
+        for booking in bookings:
+            label_width = max(booking['width'], 12.0)
+            label_left = min(booking['left'], max(0.0, 100.0 - label_width))
+            label_right = label_left + label_width
+
+            lane_index = 0
+            for lane_right in lanes:
+                if label_left >= lane_right + 0.75:
+                    break
+                lane_index += 1
+            else:
+                lanes.append(0.0)
+
+            lanes[lane_index] = label_right
+            booking['label_left'] = label_left
+            booking['label_width'] = label_width
+            booking['label_lane'] = lane_index
+            booking['label_top'] = 8 + lane_index * 40
 
 
 class EquipmentListView(LoginRequiredMixin, TemplateView):
