@@ -15,7 +15,7 @@ class Reserva(models.Model):
     data = models.DateField()
     hora_inicio = models.TimeField()
     hora_fim = models.TimeField()
-    motivo = models.CharField(max_length=255)
+    titulo = models.CharField(max_length=255)
     status = models.CharField(
         max_length=20,
         choices=ReservaStatus.choices,
@@ -34,7 +34,7 @@ class Reserva(models.Model):
         ]
 
     def __str__(self):
-        return f'{self.sala.nome} - {self.data} ({self.hora_inicio} a {self.hora_fim})'
+        return f'{self.titulo} - {self.sala.nome} - {self.data} ({self.hora_inicio} a {self.hora_fim})'
 
     def clean(self):
         if self.sala_id and not self.sala.ativa:

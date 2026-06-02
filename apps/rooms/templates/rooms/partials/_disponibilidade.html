@@ -1,8 +1,21 @@
-{% if erro_data %}<div class="alert alert-warning">{{ erro_data }}</div>{% elif disponibilidade %}
-<div class="card"><div class="card-body">
-<h2 class="h6">Horários em {{ disponibilidade.data|date:"d/m/Y" }}</h2>
-{% if disponibilidade.disponivel %}<p class="text-success mb-0">Sala livre o dia todo.</p>{% else %}
-<ul class="mb-0">{% for h in disponibilidade.horarios_bloqueados %}<li>{{ h.inicio_str }} – {{ h.fim_str }} ({{ h.professor }})</li>{% endfor %}</ul>
+{% if erro_data %}
+<div class="rounded-xl border border-error-container bg-error-container/60 px-4 py-3 text-sm text-on-error-container">{{ erro_data }}</div>
+{% elif disponibilidade %}
+<div class="rounded-2xl border border-outline-variant bg-surface-container/30 p-4">
+	<h2 class="text-sm font-semibold text-on-surface">Horarios em {{ disponibilidade.data|date:"d/m/Y" }}</h2>
+	{% if disponibilidade.disponivel %}
+	<p class="mt-2 text-sm font-semibold text-secondary-base">Sala livre o dia todo.</p>
+	{% else %}
+	<ul class="mt-2 space-y-2 text-sm text-on-surface-variant">
+		{% for h in disponibilidade.horarios_bloqueados %}
+		<li class="flex items-center justify-between rounded-xl border border-outline-variant bg-surface-card px-3 py-2">
+			<span>{{ h.inicio_str }} – {{ h.fim_str }}</span>
+			<span class="text-xs text-on-surface">{{ h.professor }}</span>
+		</li>
+		{% endfor %}
+	</ul>
+	{% endif %}
+</div>
+{% else %}
+<p class="text-sm text-on-surface-variant">Selecione uma data para ver a disponibilidade.</p>
 {% endif %}
-</div></div>
-{% else %}<p class="text-muted">Selecione uma data para ver a disponibilidade.</p>{% endif %}

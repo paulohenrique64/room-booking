@@ -1,10 +1,19 @@
 {% if messages %}
-<div class="container mt-3" id="messages">
+<div class="mb-6 space-y-3" id="messages">
     {% for message in messages %}
-    <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show" role="alert">
+    {% if message.tags == 'success' %}
+    <div class="rounded-xl border border-secondary-container bg-secondary-container/30 px-4 py-3 text-sm text-secondary-base">
         {{ message }}
-        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
     </div>
+    {% elif message.tags == 'error' or message.tags == 'danger' %}
+    <div class="rounded-xl border border-error-container bg-error-container/60 px-4 py-3 text-sm text-on-error-container">
+        {{ message }}
+    </div>
+    {% else %}
+    <div class="rounded-xl border border-outline-variant bg-surface-card px-4 py-3 text-sm text-on-surface">
+        {{ message }}
+    </div>
+    {% endif %}
     {% endfor %}
 </div>
 {% endif %}

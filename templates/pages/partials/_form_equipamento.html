@@ -1,0 +1,74 @@
+{% if request.htmx %}
+<div id="modal-overlay" onclick="window.closeModal()" style="position:fixed;inset:0;background:rgba(18,28,42,0.36);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;">
+  <div onclick="event.stopPropagation()" style="background:#ffffff;width:100%;max-width:500px;border-radius:16px;box-shadow:0px 10px 35px rgba(0,0,0,0.12);border:1px solid var(--color-outline-variant);display:flex;flex-direction:column;overflow:hidden;max-height:90vh;">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant bg-surface select-none">
+      <h2 class="text-sm font-bold text-on-surface tracking-tight">{{ pk|yesno:"Editar Equipamento,Cadastrar Equipamento" }}</h2>
+      <button class="text-on-surface-variant hover:text-primary-base transition-colors hover:bg-outline-variant/30 p-2 rounded-xl flex items-center justify-center cursor-pointer modal-close" onclick="window.closeModal()" aria-label="Fechar modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto flex-1 select-none">
+      <form method="post" hx-post="{% if pk %}{% url 'equipment_edit' pk %}{% else %}{% url 'equipment_new' %}{% endif %}" hx-target="#equipment-list-container" hx-swap="innerHTML" class="flex flex-col gap-4">
+        {% csrf_token %}
+        {% if context %}
+          <input type="hidden" name="context" value="{{ context }}" />
+        {% endif %}
+        
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Nome do Item</label>
+          {{ form.nome }}
+          {% if form.nome.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.nome.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Descrição (Opcional)</label>
+          {{ form.descricao }}
+          {% if form.descricao.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.descricao.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Quantidade em Estoque</label>
+          {{ form.quantidade }}
+          {% if form.quantidade.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.quantidade.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Ícone de Símbolo</label>
+          {{ form.icone }}
+          {% if form.icone.errors %}
+            <div class="text-xs text-error">
+              {% for error in form.icone.errors %}<p>{{ error }}</p>{% endfor %}
+            </div>
+          {% endif %}
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 rounded-xl bg-primary-base hover:bg-primary-light text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition cursor-pointer">Confirmar</button>
+          <button type="button" class="flex-1 rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-outline-variant/30 transition cursor-pointer modal-close" onclick="window.closeModal(); return false;" data-modal-close="true">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% else %}
+<!-- fallback full page form -->
+<div class="bento-card p-6">
+  <form method="post" class="flex flex-col gap-4">
+    {% csrf_token %}
+    {{ form.as_p }}
+    <button type="submit" class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Salvar</button>
+  </form>
+</div>
+{% endif %}

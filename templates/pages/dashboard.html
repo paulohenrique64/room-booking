@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block title %}Dashboard — Room Booking{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none">
+    <div class="flex justify-between items-end border-b border-outline-variant pb-6">
+        <div>
+            <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Visao Geral</h2>
+            <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie recursos de espaco corporativo e agendas de reserva em tempo real.</p>
+        </div>
+        <a href="#" hx-get="{% url 'reservations:nova' %}" hx-target="#modal-container" hx-swap="innerHTML" class="bg-primary-base hover:bg-primary-light text-white text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm shadow-primary-base/10">
+            <span class="material-symbols-outlined text-[18px]">add</span>
+            Nova Reserva
+        </a>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-6">
+        <div class="lg:col-span-3 bento-card flex flex-col justify-between h-44">
+            <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Total de Salas</span>
+                <div class="w-8 h-8 rounded-xl bg-outline-variant/30 flex items-center justify-center text-on-surface-variant">
+                    <span class="material-symbols-outlined text-[20px]">meeting_room</span>
+                </div>
+            </div>
+            <div>
+                <span class="text-4xl font-extrabold text-on-surface tracking-tight">{{ total_rooms }}</span>
+                <p class="text-xs text-on-surface-variant font-medium mt-1">Dispostas em {{ floors_count|default:0 }} andares</p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-3 bento-card flex flex-col justify-between h-44">
+            <div class="flex justify-between items-start">
+                <span class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Salas Disponiveis</span>
+                <div class="w-8 h-8 rounded-xl bg-secondary-container/20 flex items-center justify-center text-secondary-base">
+                    <span class="material-symbols-outlined text-[20px] symbol-filled">check_circle</span>
+                </div>
+            </div>
+            <div>
+                <span class="text-4xl font-extrabold text-on-surface tracking-tight">{{ available_count }}</span>
+                <p class="text-xs text-secondary-base font-semibold mt-1 flex items-center gap-1">
+                    <span class="material-symbols-outlined text-[14px]">trending_up</span> Coeficiente {{ capacity_pct }}% ocupacao
+                </p>
+            </div>
+        </div>
+
+        <div class="lg:col-span-6 bento-card relative overflow-hidden h-44">
+            <div class="absolute inset-0 bg-gradient-to-r from-primary-container/20 to-transparent opacity-60 pointer-events-none"></div>
+            <div class="relative z-10 flex justify-between h-full">
+                <div class="flex flex-col justify-between">
+                    <div>
+                        <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-full bg-error-container text-on-error-container text-[10px] font-bold uppercase tracking-wider mb-2.5">
+                            <span class="w-1.5 h-1.5 rounded-full bg-error-base animate-pulse"></span> Ocupado Agora
+                        </span>
+                        <h3 class="text-lg font-bold text-on-surface tracking-tight">{% if upcoming_booking %}{{ upcoming_booking.titulo }}{% else %}Nenhuma reuniao{% endif %}</h3>
+                        <p class="text-xs text-on-surface-variant font-medium mt-0.5">{% if upcoming_room %}{{ upcoming_room.nome }}{% else %}Nenhum espaco reservado{% endif %}</p>
+                    </div>
+                    <div class="flex items-center gap-4">
+                        <div class="flex items-center gap-1 text-on-surface-variant text-xs font-semibold">
+                            <span class="material-symbols-outlined text-[16px]">schedule</span>
+                            {% if upcoming_booking %}{{ upcoming_booking.hora_inicio|time:"H:i" }} - {{ upcoming_booking.hora_fim|time:"H:i" }}{% else %}-{% endif %}
+                        </div>
+                        <div class="flex -space-x-1.5">
+                            <div class="w-5 h-5 rounded-full bg-outline-border text-[9px] font-bold text-white flex items-center justify-center border border-white">PS</div>
+                            <div class="w-5 h-5 rounded-full bg-primary-light text-[9px] font-bold text-white flex items-center justify-center border border-white">AM</div>
+                            <div class="w-5 h-5 rounded-full bg-surface-dim font-bold text-[9px] text-on-surface flex items-center justify-center border border-white">+3</div>
+                        </div>
+                    </div>
+                </div>
+                {% if upcoming_room_image %}
+                <div class="w-24 h-24 rounded-xl overflow-hidden border border-outline-variant shadow-sm hidden sm:block">
+                    <img class="w-full h-full object-cover" src="{{ upcoming_room_image }}" alt="{{ upcoming_room.nome }}" />
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="bento-card p-0 overflow-hidden flex flex-col mt-2">
+        <div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-surface-card select-none">
+            <h3 class="text-sm font-bold text-on-surface tracking-tight">Grade de Reservas (Hoje)</h3>
+            <div class="flex items-center gap-2">
+                <button class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </button>
+                <span class="text-xs font-bold text-on-surface">{{ today|date:"d \\d\\e F, Y" }}</span>
+                <button class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </button>
+            </div>
+        </div>
+
+        <div class="overflow-x-auto calendar-track flex-1 bg-surface-card relative min-h-[300px]">
+            <div class="min-w-[800px] p-6 relative">
+                <div class="flex border-b border-outline-variant pb-2.5 mb-5 ml-40">
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">09:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">10:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">11:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">12:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">13:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">14:00</div>
+                    <div class="flex-1 text-[11px] font-semibold text-on-surface-variant text-center">15:00</div>
+                </div>
+
+                <div class="space-y-4">
+                    {% for room in rooms %}
+                    <div class="flex items-center relative group">
+                        <div class="w-40 pr-4 flex flex-col justify-center leading-tight">
+                            <span class="text-xs font-bold text-on-surface truncate">{{ room.name }}</span>
+                            <span class="text-[10px] text-on-surface-variant font-medium mt-0.5 flex items-center gap-0.5">
+                                <span class="material-symbols-outlined text-[12px]">group</span> {{ room.capacity }} pessoas
+                            </span>
+                        </div>
+                        <div class="flex-1 h-12 bg-surface rounded-xl relative border border-outline-variant overflow-hidden booking-track cursor-pointer group/track"
+                             data-room-id="{{ room.id }}"
+                             data-date="{{ today|date:'Y-m-d' }}"
+                             data-bookings='[{% for b in room.bookings %}{"start":"{{ b.start_time }}","end":"{{ b.end_time }}"}{% if not forloop.last %},{% endif %}{% endfor %}]'>
+
+                            {# Hover overlay — visível em todas as salas, some sobre blocos ocupados #}
+                            <div class="track-hover-hint absolute inset-0 flex items-center justify-center pointer-events-none
+                                        opacity-0 group-hover/track:opacity-100 transition-opacity duration-150
+                                        bg-secondary-container/10 text-secondary-base z-10">
+                                <span class="inline-flex items-center gap-1 text-[10px] font-bold
+                                             bg-secondary-container/80 backdrop-blur-sm px-2.5 py-1 rounded-full
+                                             shadow-sm select-none">
+                                    <span class="material-symbols-outlined text-[12px]">add</span>
+                                    Reservar Agora
+                                </span>
+                            </div>
+
+                            {% for booking in room.bookings %}
+                            <div class="absolute top-1 bottom-1 rounded-lg flex items-center px-3 shadow-md
+                                        border border-error-base/10 border-l-4 border-l-error-base
+                                        hover:brightness-95 active:scale-[0.99] transition-all
+                                        cursor-not-allowed bg-error-container booking-block z-20"
+                                 style="left: {{ booking.left }}%; width: {{ booking.width }}%;"
+                                 title="{{ booking.title }} ({{ booking.start_time }} - {{ booking.end_time }})">
+                                <span class="text-[10px] font-bold text-on-error-container truncate select-none">{{ booking.title }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <div class="absolute top-0 bottom-0 left-40 right-6 pointer-events-none z-10">
+                    <div class="absolute top-0 bottom-0 w-[1.5px] bg-primary-base flex flex-col items-center" style="left: {{ current_time_left }}%; transform: translateX(-50%);">
+                        <div class="w-2.5 h-2.5 rounded-full bg-primary-base -mt-1 shadow-md shadow-primary-base"></div>
+                        <span class="text-[8px] font-bold bg-primary-base text-white px-1.5 py-0.5 rounded-full absolute -bottom-4 shadow-sm select-none">{{ current_time_label }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{# ── Conflict toast ── #}
+<div id="conflict-toast"
+     class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 hidden
+            items-center gap-3 px-5 py-3 rounded-2xl shadow-xl
+            bg-error-container border border-error-base/20 text-on-error-container
+            text-sm font-semibold">
+    <span class="material-symbols-outlined text-[18px]">event_busy</span>
+    <span id="conflict-toast-msg">Horário já reservado para esta sala.</span>
+</div>
+
+{% load static %}
+<script>
+  window.NOVA_RESERVA_URL = "{% url 'reservations:nova' %}";
+</script>
+<script src="{% static 'js/dashboard.js' %}"></script>
+
+{% endblock %}

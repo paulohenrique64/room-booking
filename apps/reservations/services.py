@@ -52,14 +52,14 @@ def registrar_cancelamento(*, reserva: Reserva, usuario=None, motivo: str) -> Ca
 
 
 @transaction.atomic
-def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, motivo) -> Reserva:
+def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, titulo) -> Reserva:
     reserva = Reserva(
         professor=professor,
         sala=sala,
         data=data,
         hora_inicio=hora_inicio,
         hora_fim=hora_fim,
-        motivo=motivo,
+        titulo=titulo,
     )
     try:
         validar_reserva(reserva)
@@ -75,7 +75,7 @@ def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, motivo) -> Re
 
 
 @transaction.atomic
-def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_inicio=None, hora_fim=None, motivo=None) -> Reserva:
+def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_inicio=None, hora_fim=None, titulo=None) -> Reserva:
     if not usuario.is_staff and reserva.professor_id != usuario.id:
         raise PermissionDenied('Você só pode editar suas próprias reservas.')
 
@@ -90,8 +90,8 @@ def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_i
         reserva.hora_inicio = hora_inicio
     if hora_fim is not None:
         reserva.hora_fim = hora_fim
-    if motivo is not None:
-        reserva.motivo = motivo
+    if titulo is not None:
+        reserva.titulo = titulo
 
     try:
         validar_reserva(reserva)

@@ -1,0 +1,48 @@
+<div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
+    {% for equipamento in equipamentos %}
+    <div class="bento-card hover:shadow-md group h-40 flex flex-col justify-between select-none">
+        <div class="flex justify-between items-start">
+            <div class="w-10 h-10 rounded-xl bg-outline-variant/30 flex items-center justify-center text-primary-base shadow-sm">
+                <span class="material-symbols-outlined text-[20px]">{{ equipamento.icone }}</span>
+            </div>
+            
+            <div class="flex gap-1.5">
+                <a href="#" 
+                   hx-get="{% url 'equipment_edit' equipamento.pk %}" 
+                   hx-target="#modal-container" 
+                   hx-swap="innerHTML"
+                   class="p-1.5 text-outline-border hover:text-primary-base hover:bg-outline-variant/30 border border-outline-variant rounded-lg transition-colors cursor-pointer"
+                   title="Editar">
+                    <span class="material-symbols-outlined text-[15px]">edit</span>
+                </a>
+                    <form method="post" 
+                        action="{% url 'equipment_delete' equipamento.pk %}" 
+                        hx-delete="{% url 'equipment_delete' equipamento.pk %}" 
+                        hx-target="closest div.bento-card" 
+                        hx-swap="delete"
+                      class="inline"
+                      onsubmit="return confirm('Tem certeza que deseja deletar este equipamento?')">
+                    {% csrf_token %}
+                    <button type="submit" 
+                            class="p-1.5 text-outline-border hover:text-error-base hover:bg-error-container border border-outline-variant rounded-lg transition-colors cursor-pointer"
+                            title="Excluir">
+                        <span class="material-symbols-outlined text-[15px]">delete</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+        
+        <div>
+            <h4 class="text-sm font-bold text-on-surface">{{ equipamento.nome }}</h4>
+            <div class="flex justify-between items-center mt-2">
+                <span class="text-xs text-on-surface-variant font-medium">Quantidade instalada</span>
+                <span class="text-lg font-extrabold text-primary-base">{{ equipamento.quantidade }} unid.</span>
+            </div>
+        </div>
+    </div>
+    {% empty %}
+    <div class="col-span-full text-center text-sm text-on-surface-variant py-8">
+        Nenhum equipamento cadastrado.
+    </div>
+    {% endfor %}
+</div>
