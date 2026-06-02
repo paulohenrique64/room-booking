@@ -15,6 +15,7 @@ from apps.reservations import selectors, services
 from apps.reservations.admin import ReservaAdmin
 from apps.reservations.constants import ReservaStatus
 from apps.reservations.exceptions import DomainError
+from apps.reservations.forms import ReservaForm
 from apps.rooms.models import Sala
 
 from .models import CancelamentoReserva, Reserva
@@ -288,6 +289,16 @@ class ReservaViewTests(TestCase):
         response = self.client.get(reverse('reservations:lista'), {'data': '31/12/2099'})
 
         self.assertEqual(response.status_code, 200)
+
+
+class ReservaFormTests(TestCase):
+    def test_form_nova_reserva_preenche_data_e_inicio_atuais(self):
+        before = timezone.localtime().strftime('%H:%M')
+        form = ReservaForm()
+        after = timezone.localtime().strftime('%H:%M')
+
+        self.assertEqual(form.fields['data'].initial, timezone.localdate())
+        self.assertIn(form.fields['hora_inicio'].initial, {before, after})
 
 
 class ReservaApiTests(APITestCase):

@@ -1,6 +1,8 @@
 from datetime import time, timedelta
 
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.http import QueryDict
 from django.test import TestCase
 from django.urls import reverse
 from django.utils import timezone
@@ -8,6 +10,7 @@ from rest_framework.test import APITestCase
 
 from apps.reservations import selectors, services
 
+from .forms import SalaForm
 from .models import Recurso, Sala
 
 
@@ -28,6 +31,56 @@ class SalaModelTests(TestCase):
 
         self.assertEqual(list(selectors.salas_ativas()), [ativa])
 
+    def test_sala_nao_permite_nome_repetido_no_mesmo_predio(self):
+        Sala.objects.create(nome='Lab 101', predio='Bloco A', andar=1, capacidade=20)
+        sala = Sala(nome='lab 101', predio='bloco a', andar=2, capacidade=30)
+
+        with self.assertRaises(ValidationError):
+            sala.full_clean()
+
+    def test_sala_permite_nome_repetido_em_predios_diferentes(self):
+        Sala.objects.create(nome='Lab 101', predio='Bloco A', andar=1, capacidade=20)
+        sala = Sala(nome='Lab 101', predio='Bloco B', andar=1, capacidade=30)
+
+        sala.full_clean()
+
+
+class SalaFormEstoqueTests(TestCase):
+    def test_editar_sala_devolve_estoque_de_recurso_removido(self):
+        recurso = Recurso.objects.create(nome='Projetor', quantidade=0)
+        sala = Sala.objects.create(nome='Lab 101', predio='Bloco A', andar=1, capacidade=40)
+        sala.recursos.add(recurso)
+
+        data = QueryDict('', mutable=True)
+        data.update(
+            {
+                'nome': sala.nome,
+                'predio': sala.predio,
+                'andar': sala.andar,
+                'capacidade': sala.capacidade,
+                'descricao': '',
+                'imagem_url': '',
+                'ativa': 'on',
+            }
+        )
+        form = SalaForm(data, instance=sala)
+
+        self.assertTrue(form.is_valid(), form.errors)
+        form.save()
+        recurso.refresh_from_db()
+
+        self.assertEqual(recurso.quantidade, 1)
+
+    def test_excluir_sala_devolve_estoque_dos_recursos(self):
+        recurso = Recurso.objects.create(nome='Projetor', quantidade=0)
+        sala = Sala.objects.create(nome='Lab 101', predio='Bloco A', andar=1, capacidade=40)
+        sala.recursos.add(recurso)
+
+        sala.delete()
+        recurso.refresh_from_db()
+
+        self.assertEqual(recurso.quantidade, 1)
+
 
 class SalaViewTests(TestCase):
     def setUp(self):
@@ -47,6 +100,16 @@ class SalaViewTests(TestCase):
 
         self.assertEqual(response.status_code, 200)
         self.assertContains(response, self.sala.nome)
+
+    def test_nao_exclui_equipamento_em_uso_por_sala(self):
+        recurso = Recurso.objects.create(nome='Projetor', quantidade=0)
+        self.sala.recursos.add(recurso)
+
+        response = self.client.delete(reverse('equipment_delete', args=[recurso.pk]), HTTP_HX_REQUEST='true')
+
+        self.assertEqual(response.status_code, 409)
+        self.assertTrue(Recurso.objects.filter(pk=recurso.pk).exists())
+        self.assertContains(response, 'Não é possível excluir um equipamento em uso por salas.', status_code=409)
 
 
 class SalaApiTests(APITestCase):
@@ -77,7 +140,7 @@ class SalaApiTests(APITestCase):
             data=self.data,
             hora_inicio=time(8, 0),
             hora_fim=time(9, 0),
-            motivo='Aula',
+            titulo='Aula',
         )
         self.client.force_authenticate(self.user)
 

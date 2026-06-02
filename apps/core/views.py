@@ -217,7 +217,21 @@ def equipamento_modal(request, pk=None):
 
 def equipamento_delete(request, pk):
     if request.method in ('POST', 'DELETE'):
-        Recurso.objects.filter(pk=pk).delete()
+        equipamento = get_object_or_404(Recurso, pk=pk)
+        if equipamento.salas.exists():
+            equipamentos = Recurso.objects.all().prefetch_related('salas').order_by('nome')
+            if getattr(request, 'htmx', False):
+                return render(
+                    request,
+                    'pages/partials/_equipment_list.html',
+                    {
+                        'equipamentos': equipamentos,
+                        'equipment_error': 'Não é possível excluir um equipamento em uso por salas.',
+                    },
+                )
+            return HttpResponse('Não é possível excluir um equipamento em uso por salas.', status=409)
+
+        equipamento.delete()
         if getattr(request, 'htmx', False):
             equipamentos = Recurso.objects.all().prefetch_related('salas').order_by('nome')
             return render(request, 'pages/partials/_equipment_list.html', {'equipamentos': equipamentos})

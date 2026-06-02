@@ -9,7 +9,7 @@ from ..models import Recurso, Sala
 class RecursoSerializer(serializers.ModelSerializer):
     class Meta:
         model = Recurso
-        fields = ['id', 'nome', 'descricao', 'ativo']
+        fields = ['id', 'nome', 'descricao', 'quantidade', 'icone']
 
 
 class SalaSerializer(serializers.ModelSerializer):

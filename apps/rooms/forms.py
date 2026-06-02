@@ -106,17 +106,30 @@ class SalaForm(forms.ModelForm):
             # Decrement quantity for newly added resources
             new_recursos = set(r.pk for r in self.cleaned_data.get('recursos', []))
             added_recursos = new_recursos - old_recursos
+            removed_recursos = old_recursos - new_recursos
             for recurso_id in added_recursos:
                 recurso = Recurso.objects.get(pk=recurso_id)
                 if recurso.quantidade > 0:
                     recurso.quantidade -= 1
                     recurso.save()
+            for recurso_id in removed_recursos:
+                recurso = Recurso.objects.get(pk=recurso_id)
+                recurso.quantidade += 1
+                recurso.save()
         
         return instance
 
     def clean_recursos(self):
         recursos = self.cleaned_data.get('recursos') or []
-        indisponiveis = [recurso.nome for recurso in recursos if recurso.quantidade <= 0]
+        instance = getattr(self, 'instance', None)
+        recursos_atuais = set()
+        if instance and instance.pk:
+            recursos_atuais = set(instance.recursos.values_list('pk', flat=True))
+        indisponiveis = [
+            recurso.nome
+            for recurso in recursos
+            if recurso.pk not in recursos_atuais and recurso.quantidade <= 0
+        ]
         if indisponiveis:
             nomes = ', '.join(indisponiveis)
             raise ValidationError(f'O(s) equipamento(s) {nomes} estão sem estoque.')
@@ -133,5 +146,4 @@ class SalaForm(forms.ModelForm):
             self.selected_recursos_ids = list(instance.recursos.values_list('pk', flat=True))
         else:
             self.selected_recursos_ids = []
-
 

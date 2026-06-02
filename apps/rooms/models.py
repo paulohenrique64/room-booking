@@ -1,4 +1,6 @@
+from django.core.exceptions import ValidationError
 from django.db import models
+from django.db.models import F
 
 
 class Recurso(models.Model):
@@ -17,6 +19,11 @@ class Recurso(models.Model):
 
     def __str__(self):
         return self.nome
+
+    def delete(self, *args, **kwargs):
+        if self.salas.exists():
+            raise ValidationError('Não é possível excluir um equipamento em uso por salas.')
+        return super().delete(*args, **kwargs)
 
 
 class Sala(models.Model):
@@ -43,6 +50,26 @@ class Sala(models.Model):
 
     def __str__(self):
         return f'{self.nome} - {self.predio} ({self.capacidade} pessoas)'
+
+    def clean(self):
+        super().clean()
+        nome = (self.nome or '').strip()
+        predio = (self.predio or '').strip()
+        if not nome or not predio:
+            return
+
+        duplicada = Sala.objects.filter(nome__iexact=nome, predio__iexact=predio)
+        if self.pk:
+            duplicada = duplicada.exclude(pk=self.pk)
+        if duplicada.exists():
+            raise ValidationError({'nome': 'Já existe uma sala com este nome neste prédio.'})
+
+    def delete(self, *args, **kwargs):
+        recurso_ids = list(self.recursos.values_list('pk', flat=True))
+        deleted = super().delete(*args, **kwargs)
+        if recurso_ids:
+            Recurso.objects.filter(pk__in=recurso_ids).update(quantidade=F('quantidade') + 1)
+        return deleted
 
     @property
     def image_url(self):

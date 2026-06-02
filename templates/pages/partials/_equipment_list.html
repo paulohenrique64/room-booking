@@ -1,3 +1,8 @@
+{% if equipment_error %}
+<div class="mx-6 mt-6 rounded-xl border border-error-base/20 bg-error-container px-4 py-3 text-sm font-semibold text-on-error-container">
+    {{ equipment_error }}
+</div>
+{% endif %}
 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 p-6">
     {% for equipamento in equipamentos %}
     <div class="bento-card hover:shadow-md group h-40 flex flex-col justify-between select-none">

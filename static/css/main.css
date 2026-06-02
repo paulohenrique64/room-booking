@@ -225,6 +225,11 @@ body {
     box-shadow: 0 0 0 2px rgba(53, 37, 205, 0.15);
 }
 
+.select-field.appearance-none {
+    appearance: none;
+    -webkit-appearance: none;
+}
+
 .sidebar-link.is-active {
     background-color: rgba(226, 223, 255, 0.6);
     color: var(--color-primary-base);

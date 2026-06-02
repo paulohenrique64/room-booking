@@ -21,7 +21,10 @@
 					<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 						<div class="flex flex-col gap-1.5">
 							<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Sala</label>
-							{{ form.sala }}
+							<div class="relative">
+								{{ form.sala }}
+								<span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">keyboard_arrow_down</span>
+							</div>
 							{% if form.sala.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.sala.errors }}</div>{% endif %}
 						</div>
 						<div class="flex flex-col gap-1.5">
@@ -74,7 +77,10 @@
 <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 	<div class="flex flex-col gap-1.5">
 		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Sala</label>
-		{{ form.sala }}
+		<div class="relative">
+			{{ form.sala }}
+			<span class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">keyboard_arrow_down</span>
+		</div>
 		{% if form.sala.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.sala.errors }}</div>{% endif %}
 	</div>
 	<div class="flex flex-col gap-1.5">
