@@ -5,17 +5,7 @@ from django.utils.html import format_html
 from . import services
 from .constants import ReservaStatus
 from .exceptions import DomainError
-from .models import CancelamentoReserva, HistoricoReserva, Reserva
-
-
-class HistoricoReservaInline(admin.TabularInline):
-    model = HistoricoReserva
-    extra = 0
-    readonly_fields = ['acao', 'usuario', 'data_hora', 'descricao']
-    can_delete = False
-
-    def has_add_permission(self, request, obj):
-        return False
+from .models import CancelamentoReserva, Reserva
 
 
 class CancelamentoReservaInline(admin.StackedInline):
@@ -37,7 +27,7 @@ class ReservaAdmin(admin.ModelAdmin):
     list_filter = ['status', 'data', 'sala__predio', 'criado_em']
     search_fields = ['sala__nome', 'professor__first_name', 'professor__last_name', 'titulo']
     readonly_fields = ['criado_em', 'atualizado_em']
-    inlines = [HistoricoReservaInline, CancelamentoReservaInline]
+    inlines = [CancelamentoReservaInline]
     date_hierarchy = 'data'
 
     fieldsets = (
@@ -83,13 +73,6 @@ class ReservaAdmin(admin.ModelAdmin):
 
     def save_model(self, request, obj, form, change):
         super().save_model(request, obj, form, change)
-
-        if not change:
-            services.registrar_historico_criacao(
-                reserva=obj,
-                usuario=request.user,
-                descricao='Reserva criada via admin',
-            )
 
         if obj.status == ReservaStatus.CANCELADA:
             services.registrar_cancelamento(
@@ -140,22 +123,3 @@ class CancelamentoReservaAdmin(admin.ModelAdmin):
     cancelado_por_display.short_description = 'Cancelado por'
 
 
-@admin.register(HistoricoReserva)
-class HistoricoReservaAdmin(admin.ModelAdmin):
-    list_display = ['reserva', 'acao', 'usuario_display', 'data_hora']
-    list_filter = ['acao', 'data_hora']
-    search_fields = ['reserva__sala__nome', 'usuario__first_name', 'usuario__last_name', 'descricao']
-    readonly_fields = ['reserva', 'acao', 'usuario', 'data_hora', 'descricao']
-    date_hierarchy = 'data_hora'
-
-    def has_add_permission(self, request):
-        return False
-
-    def has_delete_permission(self, request, obj=None):
-        return False
-
-    def usuario_display(self, obj):
-        if obj.usuario:
-            return f'{obj.usuario.get_full_name() or obj.usuario.username}'
-        return 'Sistema'
-    usuario_display.short_description = 'Usuário'

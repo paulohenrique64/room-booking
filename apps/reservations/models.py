@@ -65,7 +65,7 @@ class CancelamentoReserva(models.Model):
     """Rastreamento de cancelamentos de reservas."""
 
     reserva = models.OneToOneField(Reserva, on_delete=models.CASCADE, related_name='cancelamento')
-    motivo = models.TextField()
+    titulo = models.CharField(max_length=255)
     cancelado_por = models.ForeignKey(
         User,
         on_delete=models.SET_NULL,

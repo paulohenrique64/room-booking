@@ -127,7 +127,7 @@ class Migration(migrations.Migration):
                         verbose_name="ID",
                     ),
                 ),
-                ("titulo", models.CharField(max_length=255)),
+                ("motivo", models.TextField()),
                 ("data_cancelamento", models.DateTimeField(auto_now_add=True)),
                 (
                     "cancelado_por",
