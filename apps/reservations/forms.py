@@ -9,18 +9,21 @@ from .models import Reserva
 class ReservaForm(forms.ModelForm):
     class Meta:
         model = Reserva
-        fields = ['sala', 'data', 'hora_inicio', 'hora_fim', 'titulo']
+        fields = ['sala', 'data', 'hora_inicio', 'hora_fim', 'titulo', 'status']
         widgets = {
             'data': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
             'hora_inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'input-field'}),
             'hora_fim': forms.TimeInput(attrs={'type': 'time', 'class': 'input-field'}),
             'titulo': forms.TextInput(attrs={'class': 'input-field'}),
             'sala': forms.Select(attrs={'class': 'select-field'}),
+            'status': forms.Select(attrs={'class': 'select-field'}),
         }
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['sala'].queryset = Sala.objects.filter(ativa=True).order_by('predio', 'nome')
+        if not self.instance or not self.instance.pk:
+            self.fields.pop('status', None)
 
 
 class ReservaCancelarForm(forms.Form):

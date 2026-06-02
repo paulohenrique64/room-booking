@@ -13,11 +13,11 @@ from rest_framework.test import APITestCase
 
 from apps.reservations import selectors, services
 from apps.reservations.admin import ReservaAdmin
-from apps.reservations.constants import HistoricoAcao, ReservaStatus
+from apps.reservations.constants import ReservaStatus
 from apps.reservations.exceptions import DomainError
 from apps.rooms.models import Sala
 
-from .models import CancelamentoReserva, HistoricoReserva, Reserva
+from .models import CancelamentoReserva, Reserva
 
 
 class ReservaServiceTests(TestCase):
@@ -35,7 +35,7 @@ class ReservaServiceTests(TestCase):
         )
         self.amanha = timezone.now().date() + timedelta(days=1)
 
-    def test_criar_reserva_salva_status_padrao_e_historico(self):
+    def test_criar_reserva_salva_status_padrao(self):
         reserva = services.criar_reserva(
             professor=self.professor,
             sala=self.sala,
@@ -46,13 +46,6 @@ class ReservaServiceTests(TestCase):
         )
 
         self.assertEqual(reserva.status, ReservaStatus.ATIVA)
-        self.assertTrue(
-            HistoricoReserva.objects.filter(
-                reserva=reserva,
-                acao=HistoricoAcao.CRIADA,
-                usuario=self.professor,
-            ).exists()
-        )
 
     def test_criar_reserva_impede_sobreposicao_na_mesma_sala_e_data(self):
         services.criar_reserva(
@@ -95,7 +88,7 @@ class ReservaServiceTests(TestCase):
 
         self.assertEqual(reserva.hora_inicio, time(9, 0))
 
-    def test_cancelar_reserva_altera_status_cria_cancelamento_e_historico(self):
+    def test_cancelar_reserva_altera_status_cria_cancelamento(self):
         reserva = services.criar_reserva(
             professor=self.professor,
             sala=self.sala,
@@ -109,8 +102,7 @@ class ReservaServiceTests(TestCase):
         reserva.refresh_from_db()
 
         self.assertEqual(reserva.status, ReservaStatus.CANCELADA)
-        self.assertTrue(CancelamentoReserva.objects.filter(reserva=reserva, motivo='Sem turma').exists())
-        self.assertTrue(HistoricoReserva.objects.filter(reserva=reserva, acao=HistoricoAcao.CANCELADA).exists())
+        self.assertTrue(CancelamentoReserva.objects.filter(reserva=reserva, titulo='Sem turma').exists())
 
     def test_usuario_nao_pode_cancelar_reserva_de_outro_professor(self):
         reserva = services.criar_reserva(
@@ -280,7 +272,7 @@ class ReservaViewTests(TestCase):
         response = self.client.post(
             reverse('reservations:cancelar', args=[reserva.pk]),
             {
-                'motivo': 'Sem turma',
+                    'motivo': 'Sem turma',
                 'status': ReservaStatus.ATIVA,
                 'data': self.amanha.isoformat(),
             },
@@ -336,7 +328,6 @@ class ReservaApiTests(APITestCase):
         self.assertEqual(response.status_code, 201)
         self.assertEqual(Reserva.objects.get().professor, self.professor)
         self.assertEqual(response.data['status'], ReservaStatus.ATIVA)
-        self.assertEqual(response.data['historico'][0]['acao'], HistoricoAcao.CRIADA)
 
     def test_api_nao_permite_reservar_sala_inativa(self):
         self.client.force_authenticate(self.professor)
@@ -444,27 +435,6 @@ class ReservaApiTests(APITestCase):
         self.assertEqual(response.status_code, 400)
         self.assertIn('sala', response.data['erro'])
 
-    def test_api_historico_mapeia_data_local_e_data_da_reserva(self):
-        reserva = services.criar_reserva(
-            professor=self.professor,
-            sala=self.sala,
-            data=self.amanha,
-            hora_inicio=time(8, 0),
-            hora_fim=time(9, 30),
-            titulo='Aula',
-        )
-        self.client.force_authenticate(self.professor)
-
-        response = self.client.get(f'/api/v1/reservas/{reserva.id}/')
-        historico = response.data['historico'][0]
-
-        self.assertEqual(response.status_code, 200)
-        self.assertEqual(historico['data_reserva'], self.amanha.isoformat())
-        self.assertEqual(historico['hora_inicio_reserva'], '08:00')
-        self.assertEqual(historico['hora_fim_reserva'], '09:30')
-        self.assertIn('data_hora_local', historico)
-        self.assertIn('data_hora_formatada', historico)
-
     def test_api_cancelar_reserva(self):
         reserva = services.criar_reserva(
             professor=self.professor,
@@ -487,7 +457,6 @@ class ReservaApiTests(APITestCase):
         self.assertEqual(reserva.status, ReservaStatus.CANCELADA)
         self.assertEqual(response.data['status'], ReservaStatus.CANCELADA)
         self.assertIsNotNone(response.data['cancelamento'])
-        self.assertIn(HistoricoAcao.CANCELADA, [item['acao'] for item in response.data['historico']])
 
     def test_api_cancelamento_mapeia_data_local(self):
         reserva = services.criar_reserva(
@@ -532,29 +501,7 @@ class ReservaAdminTests(TestCase):
         request._messages = FallbackStorage(request)
         return request
 
-    def test_admin_criar_reserva_registra_historico(self):
-        reserva = Reserva(
-            professor=self.professor,
-            sala=self.sala,
-            data=self.amanha,
-            hora_inicio=time(8, 0),
-            hora_fim=time(9, 0),
-            titulo='Aula',
-        )
-        model_admin = ReservaAdmin(Reserva, admin.site)
-
-        model_admin.save_model(self._request(), reserva, None, False)
-
-        self.assertTrue(
-            HistoricoReserva.objects.filter(
-                reserva=reserva,
-                acao=HistoricoAcao.CRIADA,
-                usuario=self.staff,
-                descricao='Reserva criada via admin',
-            ).exists()
-        )
-
-    def test_admin_mudar_status_para_cancelada_registra_cancelamento_e_historico(self):
+    def test_admin_mudar_status_para_cancelada_registra_cancelamento(self):
         reserva = services.criar_reserva(
             professor=self.professor,
             sala=self.sala,
@@ -573,24 +520,16 @@ class ReservaAdminTests(TestCase):
         self.assertTrue(
             CancelamentoReserva.objects.filter(
                 reserva=reserva,
-                motivo='Cancelada via admin',
+                    titulo='Cancelada via admin',
                 cancelado_por=self.staff,
             ).exists()
-        )
-        self.assertEqual(
-            HistoricoReserva.objects.filter(reserva=reserva, acao=HistoricoAcao.CANCELADA).count(),
-            1,
         )
 
         model_admin.save_model(self._request(), reserva, None, True)
 
         self.assertEqual(CancelamentoReserva.objects.filter(reserva=reserva).count(), 1)
-        self.assertEqual(
-            HistoricoReserva.objects.filter(reserva=reserva, acao=HistoricoAcao.CANCELADA).count(),
-            1,
-        )
 
-    def test_admin_action_cancelar_registra_cancelamento_e_historico(self):
+    def test_admin_action_cancelar_registra_cancelamento(self):
         reserva = services.criar_reserva(
             professor=self.professor,
             sala=self.sala,
@@ -606,10 +545,3 @@ class ReservaAdminTests(TestCase):
 
         self.assertEqual(reserva.status, ReservaStatus.CANCELADA)
         self.assertTrue(CancelamentoReserva.objects.filter(reserva=reserva).exists())
-        self.assertTrue(
-            HistoricoReserva.objects.filter(
-                reserva=reserva,
-                acao=HistoricoAcao.CANCELADA,
-                usuario=self.staff,
-            ).exists()
-        )

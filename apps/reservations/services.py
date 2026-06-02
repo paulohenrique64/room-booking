@@ -1,9 +1,9 @@
 from django.core.exceptions import PermissionDenied, ValidationError
 from django.db import transaction
 
-from .constants import ReservaStatus, HistoricoAcao
+from .constants import ReservaStatus
 from .exceptions import DomainError
-from .models import CancelamentoReserva, HistoricoReserva, Reserva
+from .models import CancelamentoReserva, Reserva
 
 
 def validar_reserva(reserva: Reserva) -> None:
@@ -11,41 +11,13 @@ def validar_reserva(reserva: Reserva) -> None:
     reserva.clean()
 
 
-def registrar_historico_criacao(*, reserva: Reserva, usuario=None, descricao='Reserva criada') -> HistoricoReserva:
-    historico = HistoricoReserva.objects.filter(
-        reserva=reserva,
-        acao=HistoricoAcao.CRIADA,
-    ).first()
-    if historico:
-        return historico
-
-    return HistoricoReserva.objects.create(
-        reserva=reserva,
-        acao=HistoricoAcao.CRIADA,
-        usuario=usuario,
-        descricao=descricao,
-    )
-
-
 def registrar_cancelamento(*, reserva: Reserva, usuario=None, motivo: str) -> CancelamentoReserva:
     cancelamento = CancelamentoReserva.objects.filter(reserva=reserva).first()
     if not cancelamento:
         cancelamento = CancelamentoReserva.objects.create(
             reserva=reserva,
-            motivo=motivo,
+            titulo=motivo,
             cancelado_por=usuario,
-        )
-
-    historico_existe = HistoricoReserva.objects.filter(
-        reserva=reserva,
-        acao=HistoricoAcao.CANCELADA,
-    ).exists()
-    if not historico_existe:
-        HistoricoReserva.objects.create(
-            reserva=reserva,
-            acao=HistoricoAcao.CANCELADA,
-            usuario=usuario,
-            descricao=f'Reserva cancelada: {motivo}',
         )
 
     return cancelamento
@@ -67,10 +39,6 @@ def criar_reserva(*, professor, sala, data, hora_inicio, hora_fim, titulo) -> Re
         raise DomainError(exc.messages[0] if exc.messages else str(exc)) from exc
 
     reserva.save()
-    registrar_historico_criacao(
-        reserva=reserva,
-        usuario=professor,
-    )
     return reserva
 
 
@@ -99,12 +67,6 @@ def atualizar_reserva(*, reserva: Reserva, usuario, sala=None, data=None, hora_i
         raise DomainError(exc.messages[0] if exc.messages else str(exc)) from exc
 
     reserva.save()
-    HistoricoReserva.objects.create(
-        reserva=reserva,
-        acao=HistoricoAcao.EDITADA,
-        usuario=usuario,
-        descricao='Reserva editada',
-    )
     return reserva
 
 

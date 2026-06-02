@@ -11,35 +11,12 @@ from apps.reservations.constants import ReservaStatus
 from apps.reservations import services
 
 from apps.reservations.exceptions import DomainError
-from apps.reservations.models import CancelamentoReserva, HistoricoReserva, Reserva
-
-
-class HistoricoReservaSerializer(serializers.ModelSerializer):
-    usuario = UserSerializer(read_only=True)
-    acao_display = serializers.CharField(source='get_acao_display', read_only=True)
-    data_hora_local = serializers.SerializerMethodField()
-    data_hora_formatada = serializers.SerializerMethodField()
-    data_reserva = serializers.DateField(source='reserva.data', read_only=True)
-    hora_inicio_reserva = serializers.TimeField(source='reserva.hora_inicio', format='%H:%M', read_only=True)
-    hora_fim_reserva = serializers.TimeField(source='reserva.hora_fim', format='%H:%M', read_only=True)
-
-    class Meta:
-        model = HistoricoReserva
-        fields = [
-            'id', 'acao', 'acao_display', 'usuario', 'data_hora',
-            'data_hora_local', 'data_hora_formatada', 'data_reserva',
-            'hora_inicio_reserva', 'hora_fim_reserva', 'descricao',
-        ]
-
-    def get_data_hora_local(self, obj):
-        return timezone.localtime(obj.data_hora).isoformat()
-
-    def get_data_hora_formatada(self, obj):
-        return timezone.localtime(obj.data_hora).strftime('%d/%m/%Y %H:%M')
+from apps.reservations.models import CancelamentoReserva, Reserva
 
 
 class CancelamentoReservaSerializer(serializers.ModelSerializer):
     cancelado_por = UserSerializer(read_only=True)
+    motivo = serializers.CharField(source='titulo')
     data_cancelamento_local = serializers.SerializerMethodField()
     data_cancelamento_formatada = serializers.SerializerMethodField()
 
@@ -60,7 +37,6 @@ class CancelamentoReservaSerializer(serializers.ModelSerializer):
 class ReservaSerializer(serializers.ModelSerializer):
     sala = SalaSerializer(read_only=True)
     professor = UserSerializer(read_only=True)
-    historico = HistoricoReservaSerializer(many=True, read_only=True)
     cancelamento = CancelamentoReservaSerializer(read_only=True)
     duracao = serializers.SerializerMethodField()
     status_display = serializers.CharField(source='get_status_display', read_only=True)
@@ -69,7 +45,7 @@ class ReservaSerializer(serializers.ModelSerializer):
         model = Reserva
         fields = [
             'id', 'sala', 'professor', 'data', 'hora_inicio', 'hora_fim',
-            'titulo', 'status', 'status_display', 'duracao', 'historico',
+            'titulo', 'status', 'status_display', 'duracao',
             'cancelamento', 'criado_em', 'atualizado_em',
         ]
         read_only_fields = ['professor', 'criado_em', 'atualizado_em']

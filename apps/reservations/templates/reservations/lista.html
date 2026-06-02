@@ -7,13 +7,14 @@
       <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Minhas Reservas</h2>
       <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie suas reservas ativas e histórico de salas.</p>
     </div>
-    <button hx-get="{% url 'reservations:nova' %}"
-            hx-target="#modal-container"
-            hx-swap="innerHTML"
-            class="bg-primary-base hover:bg-primary-light text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm shadow-primary-base/10">
+    <a href="#"
+       hx-get="{% url 'reservations:nova' %}"
+       hx-target="#modal-container"
+       hx-swap="innerHTML"
+       class="bg-primary-base hover:bg-primary-light text-white text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm shadow-primary-base/10">
       <span class="material-symbols-outlined text-[18px]">add</span>
       Nova Reserva
-    </button>
+    </a>
   </div>
 
   <form id="reservas-filtro" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">

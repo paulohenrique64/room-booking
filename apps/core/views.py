@@ -64,14 +64,20 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         capacity_pct = round((occupied_count / total_rooms) * 100) if total_rooms else 0
 
         now_time = timezone.localtime().time()
-        spotlight_booking = None
+
+        now_booking = None
+        next_booking = None
+
         for reserva in reservas_qs:
             if reserva.hora_inicio <= now_time <= reserva.hora_fim:
-                spotlight_booking = reserva
+                now_booking = reserva
                 break
 
-        if not spotlight_booking:
-            spotlight_booking = reservas_qs.filter(hora_inicio__gt=now_time).first()
+        if not now_booking:
+            next_booking = reservas_qs.filter(hora_inicio__gt=now_time).first()
+
+        spotlight_booking = now_booking or next_booking
+        is_occupied_now = now_booking is not None
 
         upcoming_room = (
             spotlight_booking.sala if spotlight_booking else (salas[0] if salas else None)
@@ -88,6 +94,7 @@ class DashboardView(LoginRequiredMixin, TemplateView):
                 'upcoming_booking': spotlight_booking,
                 'upcoming_room': upcoming_room,
                 'upcoming_room_image': self._extract_image_url(upcoming_room.descricao) if upcoming_room else '',
+                'is_occupied_now': is_occupied_now,
                 'rooms': rooms_data,
                 'current_time_label': timezone.localtime().strftime('%H:%M'),
                 'current_time_left': self._get_now_offset(),
@@ -117,12 +124,15 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         end_hour = end.hour + end.minute / 60
         timeline_start = 9.0
         total_hours = 6.0
+        timeline_end = timeline_start + total_hours
 
-        def clamp(val):
-            return max(0, min(100, val))
+        clamped_start = max(timeline_start, min(timeline_end, start_hour))
+        clamped_end = max(timeline_start, min(timeline_end, end_hour))
+        if clamped_end < clamped_start:
+            clamped_end = clamped_start
 
-        left = clamp(((start_hour - timeline_start) / total_hours) * 100)
-        width = clamp(((end_hour - start_hour) / total_hours) * 100)
+        left = ((clamped_start - timeline_start) / total_hours) * 100
+        width = ((clamped_end - clamped_start) / total_hours) * 100
         return left, width
 
     def _get_now_offset(self):
@@ -130,11 +140,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         now_hour = now.hour + now.minute / 60 + now.second / 3600
         timeline_start = 9.0
         total_hours = 6.0
+        timeline_end = timeline_start + total_hours
 
-        def clamp(val):
-            return max(0, min(100, val))
-
-        return clamp(((now_hour - timeline_start) / total_hours) * 100)
+        clamped_now = max(timeline_start, min(timeline_end, now_hour))
+        return ((clamped_now - timeline_start) / total_hours) * 100
 
 
 class EquipmentListView(LoginRequiredMixin, TemplateView):

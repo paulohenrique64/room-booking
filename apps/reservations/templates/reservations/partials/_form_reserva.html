@@ -12,7 +12,7 @@
 		</div>
 		<div class="p-6 overflow-y-auto flex-1 h-full select-none">
 			<div id="form-reserva">
-				<form method="post" hx-post="{% if form.instance.pk %}{% url 'reservations:editar' form.instance.pk %}{% else %}{% url 'reservations:nova' %}{% endif %}" hx-target="#reservas-tabela" hx-swap="outerHTML" class="flex flex-col gap-6">
+				<form method="post" hx-post="{% if form.instance.pk %}{% url 'reservations:editar' form.instance.pk %}{% else %}{% url 'reservations:nova' %}{% endif %}" hx-target="#modal-container" hx-swap="innerHTML" class="flex flex-col gap-6">
 					{% csrf_token %}
 					{% if form.non_field_errors %}
 					<div class="mb-4 rounded-xl border border-error-container bg-error-container/60 px-4 py-3 text-sm text-on-error-container">{{ form.non_field_errors }}</div>
@@ -46,6 +46,14 @@
 						<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Título da reserva</label>
 						{{ form.titulo }}
 					</div>
+
+					{% if form.status %}
+					<div class="flex flex-col gap-1.5">
+						<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Status</label>
+						{{ form.status }}
+						{% if form.status.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.status.errors }}</div>{% endif %}
+					</div>
+					{% endif %}
 
 					<div class="flex flex-wrap gap-3 pt-2">
 						<button type="button" class="rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-outline-variant/30 modal-close" onclick="window.closeModal()">Fechar</button>
@@ -89,6 +97,13 @@
 		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Título da reserva</label>
 		{{ form.titulo }}
 </div>
+{% if form.status %}
+<div class="flex flex-col gap-1.5">
+		<label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">Status</label>
+		{{ form.status }}
+		{% if form.status.errors %}<div class="mt-1 text-xs text-on-error-container">{{ form.status.errors }}</div>{% endif %}
+</div>
+{% endif %}
 <div class="flex flex-wrap gap-3 pt-2">
 		<button type="submit" class="rounded-xl bg-primary-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:bg-primary-light">Salvar</button>
 		<a href="{% url 'reservations:lista' %}" class="rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-surface-container/40">Voltar</a>
