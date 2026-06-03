@@ -36,6 +36,30 @@ document.addEventListener('DOMContentLoaded', () => {
 			filterSearchResults(query);
 		});
 	}
+
+	document.addEventListener('click', (event) => {
+		const toggle = event.target.closest('[data-notifications-toggle]');
+		const activeRoot = document.querySelector('[data-notifications-root]');
+		if (toggle && activeRoot) {
+			event.stopPropagation();
+			const panel = activeRoot.querySelector('[data-notifications-panel]');
+			const isOpen = !panel.classList.contains('hidden');
+			panel.classList.toggle('hidden', isOpen);
+			toggle.setAttribute('aria-expanded', isOpen ? 'false' : 'true');
+			return;
+		}
+
+		if (activeRoot && !activeRoot.contains(event.target)) {
+			closeNotificationsPanel(activeRoot);
+		}
+	});
+
+	document.addEventListener('keydown', (event) => {
+		if (event.key === 'Escape' || event.key === 'Esc') {
+			const activeRoot = document.querySelector('[data-notifications-root]');
+			if (activeRoot) closeNotificationsPanel(activeRoot);
+		}
+	});
 });
 
 document.addEventListener('modalClosed', () => {
@@ -52,6 +76,14 @@ function filterSearchResults(query) {
 			item.style.display = 'none';
 		}
 	});
+}
+
+function closeNotificationsPanel(root) {
+	const panel = root.querySelector('[data-notifications-panel]');
+	const toggle = root.querySelector('[data-notifications-toggle]');
+	if (!panel || !toggle) return;
+	panel.classList.add('hidden');
+	toggle.setAttribute('aria-expanded', 'false');
 }
 
 // Modal helpers used by HTMX-injected modal content

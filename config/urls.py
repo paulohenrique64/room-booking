@@ -19,6 +19,7 @@ urlpatterns = [
     path('health/', health_check, name='health'),
     path('', RedirectView.as_view(pattern_name='dashboard', permanent=False), name='home'),
     path('dashboard/', core_views.DashboardView.as_view(), name='dashboard'),
+    path('notificacoes/dispensar/', core_views.notification_dismiss, name='notification_dismiss'),
     path('equipamentos/', core_views.EquipmentListView.as_view(), name='equipment'),
     path('equipamentos/novo/', core_views.equipamento_modal, name='equipment_new'),
     path('equipamentos/<int:pk>/editar/', core_views.equipamento_modal, name='equipment_edit'),

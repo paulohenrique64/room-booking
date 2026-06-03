@@ -1,6 +1,7 @@
 from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -9,6 +10,7 @@ from apps.reservations.constants import ReservaStatus
 from apps.reservations.models import Reserva
 from apps.rooms.models import Recurso, Sala
 from apps.rooms.forms import RecursoForm, SalaForm
+from apps.core.notifications import build_notification_summary, dismiss_notification
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -348,3 +350,20 @@ def sala_delete(request, pk):
             return response
         return redirect('rooms:lista')
     return HttpResponse(status=405)
+
+
+@login_required
+def notification_dismiss(request):
+    if request.method != 'POST':
+        return HttpResponse(status=405)
+
+    reservation_id = request.POST.get('reservation_id')
+    kind = request.POST.get('kind')
+    if reservation_id and kind:
+        dismiss_notification(request.user, reservation_id=reservation_id, kind=kind)
+
+    return render(
+        request,
+        'components/notifications.html',
+        {'notification_summary': build_notification_summary(request.user)},
+    )

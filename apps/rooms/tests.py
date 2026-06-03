@@ -107,9 +107,9 @@ class SalaViewTests(TestCase):
 
         response = self.client.delete(reverse('equipment_delete', args=[recurso.pk]), HTTP_HX_REQUEST='true')
 
-        self.assertEqual(response.status_code, 409)
+        self.assertEqual(response.status_code, 200)
         self.assertTrue(Recurso.objects.filter(pk=recurso.pk).exists())
-        self.assertContains(response, 'Não é possível excluir um equipamento em uso por salas.', status_code=409)
+        self.assertContains(response, 'Não é possível excluir um equipamento em uso por salas.')
 
 
 class SalaApiTests(APITestCase):

@@ -124,10 +124,7 @@
                 </div>
             </div>
             <div class="flex items-center gap-4">
-                <button class="p-2 text-on-surface-variant hover:bg-outline-variant/30 rounded-xl transition-all relative">
-                    <span class="material-symbols-outlined">notifications</span>
-                    <span class="absolute top-1.5 right-1.5 w-2 h-2 bg-error-base rounded-full"></span>
-                </button>
+                {% include 'components/notifications.html' %}
                 <div class="h-10 border-r border-outline-variant"></div>
                 <div class="flex items-center gap-2 cursor-pointer group">
                     <div class="w-10 h-10 rounded-full bg-surface-variant overflow-hidden border border-outline-variant ring-0 group-hover:ring-2 ring-primary-light transition-all flex items-center justify-center text-xs font-bold text-primary-base">
