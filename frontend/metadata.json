@@ -1,6 +1,0 @@
-{
-  "name": "Workspace Portal",
-  "description": "Enterprise Resource Management and Room Booking System utilizing HTMX, separated HTML/CSS/JS, and Express.",
-  "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
-}
