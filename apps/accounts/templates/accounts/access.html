@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}Acessos — Room Booking{% endblock %}
+
+{% block content %}
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none" id="access-view-container">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 border-b border-outline-variant pb-6">
+        <div>
+            <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Usuários e Grupos</h2>
+            <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie contas, papéis de acesso e permissões operacionais.</p>
+        </div>
+        <div class="flex gap-3 w-full sm:w-auto">
+            <button class="flex-1 sm:flex-none border border-outline-border hover:bg-outline-variant/35 text-on-surface text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer bg-surface-card"
+                    hx-get="{% url 'accounts:group_new' %}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML">
+                <span class="material-symbols-outlined text-[18px]">group_add</span>
+                Novo Grupo
+            </button>
+            <button class="flex-1 sm:flex-none bg-primary-base hover:bg-primary-light text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                    hx-get="{% url 'accounts:user_new' %}"
+                    hx-target="#modal-container"
+                    hx-swap="innerHTML">
+                <span class="material-symbols-outlined text-[18px]">person_add</span>
+                Novo Usuário
+            </button>
+        </div>
+    </div>
+
+    {% include 'accounts/partials/_access_panel.html' %}
+</div>
+{% endblock %}

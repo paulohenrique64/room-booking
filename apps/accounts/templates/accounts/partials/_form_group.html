@@ -1,0 +1,46 @@
+<div id="modal-overlay" onclick="window.closeModal()" style="position:fixed;inset:0;background:rgba(18,28,42,0.36);backdrop-filter:blur(6px);display:flex;align-items:center;justify-content:center;padding:1rem;z-index:60;">
+  <div onclick="event.stopPropagation()" style="background:#ffffff;width:100%;max-width:760px;border-radius:16px;box-shadow:0px 10px 35px rgba(0,0,0,0.12);border:1px solid var(--color-outline-variant);display:flex;flex-direction:column;overflow:hidden;max-height:90vh;">
+    <div class="flex items-center justify-between px-6 py-5 border-b border-outline-variant bg-surface select-none">
+      <h2 class="text-sm font-bold text-on-surface tracking-tight">{{ pk|yesno:"Editar Grupo,Cadastrar Grupo" }}</h2>
+      <button class="text-on-surface-variant hover:text-primary-base transition-colors hover:bg-outline-variant/30 p-2 rounded-xl flex items-center justify-center cursor-pointer modal-close" onclick="window.closeModal()" aria-label="Fechar modal">
+        <span class="material-symbols-outlined">close</span>
+      </button>
+    </div>
+    <div class="p-6 overflow-y-auto flex-1 select-none">
+      {% if form.non_field_errors %}
+      <div class="mb-4 p-3 rounded-lg bg-error-container border border-error-base/20 text-on-error-container text-xs">{{ form.non_field_errors }}</div>
+      {% endif %}
+      <form method="post" hx-post="{% if pk %}{% url 'accounts:group_edit' pk %}{% else %}{% url 'accounts:group_new' %}{% endif %}" hx-target="#access-panel" hx-swap="outerHTML" hx-on:htmx:afterRequest="if(event.detail.successful) window.closeModal()" class="flex flex-col gap-4">
+        {% csrf_token %}
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">{{ form.name.label }}</label>
+          {{ form.name }}
+          {% if form.name.errors %}<div class="text-xs text-error-base">{{ form.name.errors }}</div>{% endif %}
+        </div>
+
+        <div class="flex flex-col gap-1.5">
+          <label class="text-[10px] font-bold text-on-surface-variant uppercase tracking-wider">O que este grupo pode fazer</label>
+          <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 max-h-80 overflow-y-auto pr-1">
+            {% for permission in form.permission_options %}
+            <label class="flex items-start gap-2 text-xs font-semibold cursor-pointer rounded-xl border border-outline-variant px-3 py-2 hover:bg-surface-container/40 transition">
+              <input type="checkbox" name="permissions" value="{{ permission.id }}" {% if permission.id in form.selected_permission_ids %}checked{% endif %} class="mt-0.5 rounded border-outline-variant text-primary-base focus:ring-primary-base" />
+              <span>
+                <span class="block text-on-surface">{{ permission.label }}</span>
+                <span class="block text-[10px] text-on-surface-variant">{{ permission.code }}</span>
+              </span>
+            </label>
+            {% empty %}
+            <p class="text-xs text-on-surface-variant">Nenhuma permissão disponível.</p>
+            {% endfor %}
+          </div>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <button type="submit" class="flex-1 rounded-xl bg-primary-base hover:bg-primary-light text-white px-5 py-2.5 text-sm font-semibold shadow-sm transition cursor-pointer">Salvar</button>
+          <button type="button" class="flex-1 rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant hover:bg-outline-variant/30 transition cursor-pointer modal-close" onclick="window.closeModal(); return false;">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
