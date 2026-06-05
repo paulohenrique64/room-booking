@@ -42,7 +42,11 @@ class ReservaFiltroForm(forms.Form):
     status = forms.ChoiceField(
         required=False,
         choices=[('', 'Todos')] + list(ReservaStatus.choices),
-        widget=forms.Select(attrs={'class': 'select-field'}),
+        widget=forms.Select(
+            attrs={
+                'class': 'select-field appearance-none pr-10'
+            }
+        )
     )
     data = forms.DateField(
         required=False,

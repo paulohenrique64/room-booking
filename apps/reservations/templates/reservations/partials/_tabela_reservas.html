@@ -47,7 +47,7 @@
 							<a hx-get="{% url 'reservations:editar' reserva.pk %}" hx-target="#modal-container" hx-swap="innerHTML" class="p-1.5 text-outline-border hover:text-primary-base rounded-md transition-colors cursor-pointer" title="Editar Reserva" aria-label="Editar reserva">
 								<span class="material-symbols-outlined text-[18px]">edit</span>
 							</a>
-							<form class="inline-flex" method="post" action="{% url 'reservations:cancelar' reserva.pk %}" hx-post="{% url 'reservations:cancelar' reserva.pk %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-confirm="Excluir esta reserva?">
+							<form class="inline-flex" method="post" action="{% url 'reservations:cancelar' reserva.pk %}" hx-post="{% url 'reservations:cancelar' reserva.pk %}" hx-target="#reservas-tabela" hx-swap="outerHTML" data-delete-confirm="Tem certeza que deseja excluir esta reserva? Esta ação irá cancelar a reserva.">
 								{% csrf_token %}
 								<button type="submit" class="p-1.5 text-outline-border hover:text-error-base hover:bg-error-container rounded-md transition-colors cursor-pointer" title="Excluir Reserva" aria-label="Excluir reserva">
 									<span class="material-symbols-outlined text-[18px]">delete</span>

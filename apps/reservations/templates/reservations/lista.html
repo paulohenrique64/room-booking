@@ -19,8 +19,18 @@
 
   <form id="reservas-filtro" class="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3" hx-get="{% url 'reservations:lista' %}" hx-target="#reservas-tabela" hx-swap="outerHTML" hx-push-url="true">
     <div>
-      <label class="mb-2 block text-sm font-semibold text-on-surface" for="id_status">Status</label>
-      {{ filtro_form.status }}
+      <label class="mb-2 block text-sm font-semibold text-on-surface" for="id_status">
+        Status
+      </label>
+
+      <div class="relative">
+        {{ filtro_form.status }}
+
+        <span
+          class="material-symbols-outlined pointer-events-none absolute right-3 top-1/2 -translate-y-1/2 text-[18px] text-on-surface-variant">
+          keyboard_arrow_down
+        </span>
+      </div>
     </div>
     <div>
       <label class="mb-2 block text-sm font-semibold text-on-surface" for="id_data">Data</label>
