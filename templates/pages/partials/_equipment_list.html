@@ -26,7 +26,7 @@
                                                 hx-delete="{% url 'equipment_delete' equipamento.pk %}"
                                                 hx-target="#equipment-list-container"
                                                 hx-swap="innerHTML"
-                                                        hx-confirm="Tem certeza que deseja deletar este equipamento?"
+                                                        data-delete-confirm="Tem certeza que deseja excluir este equipamento? Esta ação não pode ser desfeita."
                                                         hx-include="closest form"
                             class="p-1.5 text-outline-border hover:text-error-base hover:bg-error-container border border-outline-variant rounded-lg transition-colors cursor-pointer"
                             title="Excluir">

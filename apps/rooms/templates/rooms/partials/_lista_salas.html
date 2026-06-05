@@ -56,7 +56,7 @@
                   hx-delete="{% url 'room_delete' sala.pk %}"
                   hx-target="#rooms-list-container"
                   hx-swap="outerHTML"
-                  onclick="return confirm('Tem certeza que deseja excluir esta sala?')">
+                  data-delete-confirm="Tem certeza que deseja excluir esta sala? Esta ação não pode ser desfeita.">
             <span class="material-symbols-outlined text-[18px]">delete</span>
           </button>
         </div>

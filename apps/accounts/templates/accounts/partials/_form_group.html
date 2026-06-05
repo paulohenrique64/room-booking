@@ -27,7 +27,6 @@
               <input type="checkbox" name="permissions" value="{{ permission.id }}" {% if permission.id in form.selected_permission_ids %}checked{% endif %} class="mt-0.5 rounded border-outline-variant text-primary-base focus:ring-primary-base" />
               <span>
                 <span class="block text-on-surface">{{ permission.label }}</span>
-                <span class="block text-[10px] text-on-surface-variant">{{ permission.code }}</span>
               </span>
             </label>
             {% empty %}

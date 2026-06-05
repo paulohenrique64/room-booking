@@ -6,6 +6,7 @@ document.addEventListener('DOMContentLoaded', () => {
 				event.detail.headers['X-CSRFToken'] = tokenInput.value;
 			}
 		});
+
 	}
 
 	const sidebarLinks = document.querySelectorAll('[data-nav-link]');
@@ -62,6 +63,40 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 });
 
+document.addEventListener('click', (event) => {
+	const trigger = event.target.closest('[data-delete-confirm]');
+	if (!trigger || trigger.tagName === 'FORM') return;
+
+	event.preventDefault();
+	event.stopPropagation();
+	event.stopImmediatePropagation();
+
+	openDeleteConfirmDialog({
+		message: trigger.getAttribute('data-delete-confirm'),
+		onConfirm: () => {
+			trigger.removeAttribute('data-delete-confirm');
+			trigger.click();
+		},
+	});
+}, true);
+
+document.addEventListener('submit', (event) => {
+	const form = event.target.closest('form[data-delete-confirm]');
+	if (!form) return;
+
+	event.preventDefault();
+	event.stopPropagation();
+	event.stopImmediatePropagation();
+
+	openDeleteConfirmDialog({
+		message: form.getAttribute('data-delete-confirm'),
+		onConfirm: () => {
+			form.removeAttribute('data-delete-confirm');
+			form.requestSubmit();
+		},
+	});
+}, true);
+
 document.addEventListener('modalClosed', () => {
 	window.closeModal();
 });
@@ -84,6 +119,56 @@ function closeNotificationsPanel(root) {
 	if (!panel || !toggle) return;
 	panel.classList.add('hidden');
 	toggle.setAttribute('aria-expanded', 'false');
+}
+
+function openDeleteConfirmDialog({ message, onConfirm }) {
+	closeDeleteConfirmDialog();
+
+	const overlay = document.createElement('div');
+	overlay.id = 'delete-confirm-overlay';
+	overlay.className = 'fixed inset-0 z-[120] flex items-center justify-center bg-[rgba(18,28,42,0.36)] p-4 backdrop-blur-md';
+	overlay.innerHTML = `
+		<div class="w-full max-w-md overflow-hidden rounded-2xl border border-outline-variant bg-surface-card shadow-xl" data-delete-confirm-dialog>
+			<div class="flex items-start gap-4 border-b border-outline-variant bg-surface px-6 py-5">
+				<div class="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-error-container text-on-error-container">
+					<span class="material-symbols-outlined text-[22px]">delete</span>
+				</div>
+				<div>
+					<h2 class="text-sm font-extrabold tracking-tight text-on-surface">Confirmar exclusão</h2>
+					<p class="mt-1 text-xs font-medium leading-5 text-on-surface-variant">${escapeHtml(message)}</p>
+				</div>
+			</div>
+			<div class="flex flex-col-reverse gap-3 px-6 py-5 sm:flex-row sm:justify-end">
+				<button type="button" class="rounded-xl border border-outline-variant px-5 py-2.5 text-sm font-semibold text-on-surface-variant transition hover:bg-outline-variant/30" data-delete-confirm-cancel>Cancelar</button>
+				<button type="button" class="rounded-xl bg-error-base px-5 py-2.5 text-sm font-semibold text-white shadow-sm transition hover:brightness-95" data-delete-confirm-accept>Excluir</button>
+			</div>
+		</div>
+	`;
+
+	document.body.appendChild(overlay);
+
+	overlay.querySelector('[data-delete-confirm-cancel]').addEventListener('click', closeDeleteConfirmDialog);
+	overlay.querySelector('[data-delete-confirm-accept]').addEventListener('click', () => {
+		closeDeleteConfirmDialog();
+		onConfirm();
+	});
+	overlay.addEventListener('click', (event) => {
+		if (event.target === overlay) closeDeleteConfirmDialog();
+	});
+}
+
+function closeDeleteConfirmDialog() {
+	const overlay = document.getElementById('delete-confirm-overlay');
+	if (overlay) overlay.remove();
+}
+
+function escapeHtml(value) {
+	return String(value)
+		.replace(/&/g, '&amp;')
+		.replace(/</g, '&lt;')
+		.replace(/>/g, '&gt;')
+		.replace(/"/g, '&quot;')
+		.replace(/'/g, '&#039;');
 }
 
 // Modal helpers used by HTMX-injected modal content
@@ -114,6 +199,7 @@ document.addEventListener('click', function(event) {
 // Close modal on Escape key
 document.addEventListener('keydown', function(event) {
 	if (event.key === 'Escape' || event.key === 'Esc') {
+		closeDeleteConfirmDialog();
 		window.closeModal();
 	}
 });

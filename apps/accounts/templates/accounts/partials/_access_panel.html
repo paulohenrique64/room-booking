@@ -52,7 +52,7 @@
                         hx-delete="{% url 'accounts:user_delete' usuario.pk %}"
                         hx-target="#access-panel"
                         hx-swap="outerHTML"
-                        onclick="return confirm('Tem certeza que deseja excluir este usuário?')">
+                        data-delete-confirm="Tem certeza que deseja excluir este usuário? Esta ação não pode ser desfeita.">
                     <span class="material-symbols-outlined text-[18px]">delete</span>
                 </button>
             </div>
@@ -82,14 +82,14 @@
                             hx-delete="{% url 'accounts:group_delete' grupo.pk %}"
                             hx-target="#access-panel"
                             hx-swap="outerHTML"
-                            onclick="return confirm('Tem certeza que deseja excluir este grupo?')">
+                            data-delete-confirm="Tem certeza que deseja excluir este grupo? Esta ação não pode ser desfeita.">
                         <span class="material-symbols-outlined text-[15px]">delete</span>
                     </button>
                 </div>
             </div>
             <div class="flex flex-wrap gap-1.5 mt-3">
-                {% for permission in grupo.permissions.all|slice:':4' %}
-                <span class="rounded-lg bg-surface border border-outline-variant px-2 py-1 text-[9px] font-bold text-on-surface-variant">{{ permission.name }}</span>
+                {% for permission_label in grupo.permission_preview %}
+                <span class="rounded-lg bg-surface border border-outline-variant px-2 py-1 text-[9px] font-bold text-on-surface-variant">{{ permission_label }}</span>
                 {% empty %}
                 <span class="text-[10px] font-semibold text-on-surface-variant">Sem permissões</span>
                 {% endfor %}

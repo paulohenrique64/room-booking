@@ -8,7 +8,7 @@ from django.views.generic import TemplateView
 
 from apps.core.mixins import HtmxMixin
 
-from .forms import GroupAdminForm, UserAdminForm
+from .forms import GroupAdminForm, UserAdminForm, permission_label
 
 
 class StaffRequiredMixin(UserPassesTestMixin):
@@ -48,9 +48,12 @@ class AccessManagementView(StaffRequiredMixin, TemplateView):
 
 
 def access_context():
+    grupos = list(Group.objects.prefetch_related('permissions').order_by('name'))
+    for grupo in grupos:
+        grupo.permission_preview = [permission_label(permission) for permission in grupo.permissions.all()[:4]]
     return {
         'usuarios': User.objects.prefetch_related('groups').order_by('username'),
-        'grupos': Group.objects.prefetch_related('permissions').order_by('name'),
+        'grupos': grupos,
     }
 
 
