@@ -2,6 +2,7 @@ from datetime import datetime
 
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.decorators import login_required
+from django.core.exceptions import ValidationError
 from django.utils import timezone
 from django.views.generic import TemplateView
 
@@ -11,6 +12,7 @@ from apps.reservations.models import Reserva
 from apps.rooms.models import Recurso, Sala
 from apps.rooms.forms import RecursoForm, SalaForm
 from apps.core.notifications import build_notification_summary, dismiss_notification
+from apps.core.utils import parse_data
 from django.shortcuts import get_object_or_404
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
@@ -22,11 +24,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         hoje = timezone.localdate()
+        selected_date = self._get_selected_date(hoje)
         salas = list(Sala.objects.filter(ativa=True).order_by('predio', 'andar', 'nome'))
-        reservas_qs = (
+        reservas_base_qs = (
             reservation_selectors.reservas_para_usuario(self.request.user)
-            .filter(data=hoje, status=ReservaStatus.ATIVA)
+            .filter(status=ReservaStatus.ATIVA)
             .select_related('sala')
+        )
+        reservas_qs = (
+            reservas_base_qs
+            .filter(data=selected_date)
             .order_by('hora_inicio')
         )
 
@@ -72,16 +79,35 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         now_booking = None
         next_booking = None
 
-        for reserva in reservas_qs:
+        for reserva in reservas_base_qs.filter(data=hoje).order_by('hora_inicio'):
             if reserva.hora_inicio <= now_time <= reserva.hora_fim:
                 now_booking = reserva
                 break
 
         if not now_booking:
-            next_booking = reservas_qs.filter(hora_inicio__gt=now_time).first()
+            next_booking = (
+                reservas_base_qs
+                .filter(data__gte=hoje)
+                .order_by('data', 'hora_inicio')
+                .first()
+            )
 
         spotlight_booking = now_booking or next_booking
         is_occupied_now = now_booking is not None
+        previous_booking_date = (
+            reservas_base_qs
+            .filter(data__gte=hoje, data__lt=selected_date)
+            .order_by('-data')
+            .values_list('data', flat=True)
+            .first()
+        )
+        next_booking_date = (
+            reservas_base_qs
+            .filter(data__gt=selected_date)
+            .order_by('data')
+            .values_list('data', flat=True)
+            .first()
+        )
 
         upcoming_room = (
             spotlight_booking.sala if spotlight_booking else (salas[0] if salas else None)
@@ -90,6 +116,10 @@ class DashboardView(LoginRequiredMixin, TemplateView):
         context.update(
             {
                 'today': hoje,
+                'selected_date': selected_date,
+                'is_today_selected': selected_date == hoje,
+                'previous_booking_date': previous_booking_date,
+                'next_booking_date': next_booking_date,
                 'total_rooms': total_rooms,
                 'occupied_count': occupied_count,
                 'available_count': available_count,
@@ -105,6 +135,16 @@ class DashboardView(LoginRequiredMixin, TemplateView):
             }
         )
         return context
+
+    def _get_selected_date(self, fallback):
+        data_param = self.request.GET.get('data')
+        if not data_param:
+            return fallback
+        try:
+            selected_date = parse_data(data_param)
+        except ValidationError:
+            return fallback
+        return max(selected_date, fallback)
 
     def _extract_image_url(self, descricao):
         if not descricao:

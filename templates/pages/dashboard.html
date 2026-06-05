@@ -4,13 +4,13 @@
 {% block title %}Dashboard — Room Booking{% endblock %}
 
 {% block content %}
-<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none">
-    <div class="flex justify-between items-end border-b border-outline-variant pb-6">
+<div class="flex flex-col gap-8 max-w-[1400px] mx-auto select-none" id="dashboard-view-container">
+    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 border-b border-outline-variant pb-6">
         <div>
             <h2 class="text-2xl mt-2 md:text-3xl font-extrabold text-on-surface tracking-tight">Visao Geral</h2>
             <p class="text-sm text-on-surface-variant font-medium mt-1">Gerencie recursos de espaco corporativo e agendas de reserva em tempo real.</p>
         </div>
-        <a href="#" hx-get="{% url 'reservations:nova' %}" hx-target="#modal-container" hx-swap="innerHTML" class="bg-primary-base hover:bg-primary-light text-white text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm shadow-primary-base/10">
+        <a href="#" hx-get="{% url 'reservations:nova' %}" hx-target="#modal-container" hx-swap="innerHTML" class="w-full sm:w-auto bg-primary-base hover:bg-primary-light text-white text-sm font-semibold px-5 py-2.5 rounded-xl flex items-center justify-center gap-1.5 active:scale-[0.98] transition-all cursor-pointer shadow-sm shadow-primary-base/10">
             <span class="material-symbols-outlined text-[18px]">add</span>
             Nova Reserva
         </a>
@@ -78,16 +78,31 @@
     </div>
 
     <div class="bento-card p-0 overflow-hidden flex flex-col mt-2">
-        <div class="px-6 py-5 border-b border-outline-variant flex justify-between items-center bg-surface-card select-none">
-            <h3 class="text-sm font-bold text-on-surface tracking-tight">Grade de Reservas (Hoje)</h3>
-            <div class="flex items-center gap-2">
-                <button class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors">
+        <div class="px-6 py-5 border-b border-outline-variant flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3 bg-surface-card select-none">
+            <div>
+                <h3 class="text-sm font-bold text-on-surface tracking-tight">Grade de Reservas</h3>
+                <p class="text-[10px] font-semibold text-on-surface-variant mt-0.5">{% if is_today_selected %}Hoje{% else %}Data selecionada{% endif %}</p>
+            </div>
+            <div class="flex items-center gap-2 w-full sm:w-auto justify-between sm:justify-end">
+                {% if previous_booking_date %}
+                <a href="?data={{ previous_booking_date|date:'Y-m-d' }}" class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors" aria-label="Data anterior com reserva">
                     <span class="material-symbols-outlined">chevron_left</span>
-                </button>
-                <span class="text-xs font-bold text-on-surface">{{ today|date:"d \\d\\e F, Y" }}</span>
-                <button class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors">
+                </a>
+                {% else %}
+                <span class="p-1 rounded-lg text-outline-border/40" aria-hidden="true">
+                    <span class="material-symbols-outlined">chevron_left</span>
+                </span>
+                {% endif %}
+                <span class="text-xs font-bold text-on-surface text-center min-w-36">{{ selected_date|date:"d \\d\\e F, Y" }}</span>
+                {% if next_booking_date %}
+                <a href="?data={{ next_booking_date|date:'Y-m-d' }}" class="p-1 rounded-lg text-on-surface-variant hover:bg-outline-variant/30 cursor-pointer transition-colors" aria-label="Próxima data com reserva">
                     <span class="material-symbols-outlined">chevron_right</span>
-                </button>
+                </a>
+                {% else %}
+                <span class="p-1 rounded-lg text-outline-border/40" aria-hidden="true">
+                    <span class="material-symbols-outlined">chevron_right</span>
+                </span>
+                {% endif %}
             </div>
         </div>
 
@@ -148,6 +163,7 @@
                     {% endfor %}
                 </div>
 
+                {% if is_today_selected %}
                 <div class="absolute top-6 bottom-6 left-6 right-6 pointer-events-none z-10 grid grid-cols-[11rem_minmax(0,1fr)]">
                     <div></div>
                     <div class="relative">
@@ -157,6 +173,7 @@
                         </div>
                     </div>
                 </div>
+                {% endif %}
             </div>
         </div>
     </div>
