@@ -59,6 +59,41 @@ python manage.py runserver 0.0.0.0:8000
 - **Admin:** http://localhost:8000/admin/
 - **API:** http://localhost:8000/api/v1/
 
+## Popular dados de demonstração
+
+Depois de rodar as migrações, você pode popular salas, equipamentos, usuários e reservas de exemplo:
+
+```bash
+python manage.py seed_frontend_data
+```
+
+Para limpar reservas, salas e equipamentos antes de popular:
+
+```bash
+python manage.py seed_frontend_data --limpar
+```
+
+Também é possível executar o script direto:
+
+```bash
+python load.py
+```
+
+Ao rodar `load.py` diretamente, ele limpa reservas, salas e equipamentos antes de recriar os dados.
+
+Credenciais criadas pelo seed:
+
+- **Admin:** usuário `admin`, senha `admin12345`
+- **Usuário demo:** usuário `demo.professor`, senha `demo12345`
+
+Com Docker:
+
+```bash
+docker-compose exec web python manage.py seed_frontend_data
+docker-compose exec web python manage.py seed_frontend_data --limpar
+docker-compose exec web python load.py
+```
+
 ## Stack
 
 - Django 4.2 + django-htmx

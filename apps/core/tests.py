@@ -117,3 +117,5 @@ class SeedFrontendDataCommandTests(TestCase):
         self.assertTrue(Sala.objects.filter(nome='Studio A').exists())
         self.assertTrue(Sala.objects.filter(nome='Laboratório de Inovação').exists())
         self.assertTrue(Reserva.objects.filter(data__gte=timezone.localdate()).exists())
+        self.assertTrue(User.objects.get(username='admin').is_superuser)
+        self.assertTrue(User.objects.get(username='admin').check_password('admin12345'))

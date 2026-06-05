@@ -80,6 +80,16 @@ SALAS_DATA = [
     },
 ]
 
+DEMO_PASSWORD = 'demo12345'
+ADMIN_PASSWORD = 'admin12345'
+
+ADMIN_DATA = {
+    'username': 'admin',
+    'first_name': 'Administrador',
+    'last_name': 'Sistema',
+    'email': 'admin@example.com',
+}
+
 USUARIOS_DATA = [
     {'username': 'ana.professora', 'first_name': 'Ana Paula', 'last_name': 'Ribeiro', 'email': 'ana.ribeiro@example.com'},
     {'username': 'carlos.professor', 'first_name': 'Carlos Eduardo', 'last_name': 'Mendes', 'email': 'carlos.mendes@example.com'},
@@ -157,10 +167,22 @@ def populate(clear=False, stdout=print):
                     'is_staff': True,
                 },
             )
-            if created:
-                usuario.set_password('demo12345')
-                usuario.save(update_fields=['password'])
+            usuario.first_name = item['first_name']
+            usuario.last_name = item['last_name']
+            usuario.email = item['email']
+            usuario.is_staff = True
+            usuario.set_password(DEMO_PASSWORD)
+            usuario.save(update_fields=['first_name', 'last_name', 'email', 'is_staff', 'password'])
             usuarios.append(usuario)
+
+        admin, _created = User.objects.get_or_create(username=ADMIN_DATA['username'])
+        admin.first_name = ADMIN_DATA['first_name']
+        admin.last_name = ADMIN_DATA['last_name']
+        admin.email = ADMIN_DATA['email']
+        admin.is_staff = True
+        admin.is_superuser = True
+        admin.set_password(ADMIN_PASSWORD)
+        admin.save(update_fields=['first_name', 'last_name', 'email', 'is_staff', 'is_superuser', 'password'])
 
         stdout('Populando reservas...')
         hoje = timezone.localdate()
