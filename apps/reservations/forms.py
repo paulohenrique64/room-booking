@@ -12,9 +12,9 @@ class ReservaForm(forms.ModelForm):
         model = Reserva
         fields = ['sala', 'data', 'hora_inicio', 'hora_fim', 'titulo', 'status']
         widgets = {
-            'data': forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
-            'hora_inicio': forms.TimeInput(attrs={'type': 'time', 'class': 'input-field'}),
-            'hora_fim': forms.TimeInput(attrs={'type': 'time', 'class': 'input-field'}),
+            'data': forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'input-field'}),
+            'hora_inicio': forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'class': 'input-field'}),
+            'hora_fim': forms.TimeInput(format='%H:%M', attrs={'type': 'time', 'class': 'input-field'}),
             'titulo': forms.TextInput(attrs={'class': 'input-field'}),
             'sala': forms.Select(attrs={'class': 'select-field appearance-none pr-10'}),
             'status': forms.Select(attrs={'class': 'select-field'}),
@@ -50,5 +50,5 @@ class ReservaFiltroForm(forms.Form):
     )
     data = forms.DateField(
         required=False,
-        widget=forms.DateInput(attrs={'type': 'date', 'class': 'input-field'}),
+        widget=forms.DateInput(format='%Y-%m-%d', attrs={'type': 'date', 'class': 'input-field'}),
     )

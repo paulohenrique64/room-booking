@@ -251,6 +251,14 @@ class ReservaViewTests(TestCase):
         self.assertEqual(response['HX-Redirect'], reverse('reservations:lista'))
         self.assertTrue(Reserva.objects.filter(professor=self.professor, sala=self.sala).exists())
 
+    def test_form_nova_reserva_renderiza_data_atual(self):
+        self.client.force_login(self.professor)
+
+        response = self.client.get(reverse('reservations:nova'), HTTP_HX_REQUEST='true')
+
+        self.assertEqual(response.status_code, 200)
+        self.assertContains(response, f'value="{timezone.localdate().isoformat()}"')
+
     def test_cancelar_reserva_htmx_preserva_filtros_ativos(self):
         self.client.force_login(self.professor)
         reserva = services.criar_reserva(
